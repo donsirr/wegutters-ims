@@ -1,0 +1,89 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="app_icon.png" />
+    <None Remove="Resources\add_icon.png" />
+    <None Remove="Resources\clipboard_icon.png" />
+    <None Remove="Resources\company_icon.png" />
+    <None Remove="Resources\countries_icon.png" />
+    <None Remove="Resources\customers_icon.png" />
+    <None Remove="Resources\dashboard_icon.png" />
+    <None Remove="Resources\delete_group_icon.png" />
+    <None Remove="Resources\delete_icon.png" />
+    <None Remove="Resources\delete_product_icon.png" />
+    <None Remove="Resources\documents_icon.png" />
+    <None Remove="Resources\edit_group_icon.png" />
+    <None Remove="Resources\edit_icon.png" />
+    <None Remove="Resources\edit_product_icon.png" />
+    <None Remove="Resources\excel_icon.png" />
+    <None Remove="Resources\export_icon.png" />
+    <None Remove="Resources\file-text.png" />
+    <None Remove="Resources\import_icon.png" />
+    <None Remove="Resources\new_group_icon.png" />
+    <None Remove="Resources\new_product_icon.png" />
+    <None Remove="Resources\payment_icon.png" />
+    <None Remove="Resources\pdf_icon.png" />
+    <None Remove="Resources\print_icon.png" />
+    <None Remove="Resources\products_icon.png" />
+    <None Remove="Resources\promotions_icon.png" />
+    <None Remove="Resources\refresh_icon.png" />
+    <None Remove="Resources\reporting_icon.png" />
+    <None Remove="Resources\report_icon.png" />
+    <None Remove="Resources\reset_password_icon.png" />
+    <None Remove="Resources\save_icon.png" />
+    <None Remove="Resources\sorting_icon.png" />
+    <None Remove="Resources\stock_icon.png" />
+    <None Remove="Resources\tags_icon.png" />
+    <None Remove="Resources\tax_icon.png" />
+    <None Remove="Resources\users_icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="app_icon.png" />
+    <Resource Include="Resources\add_icon.png" />
+    <Resource Include="Resources\clipboard_icon.png" />
+    <Resource Include="Resources\company_icon.png" />
+    <Resource Include="Resources\countries_icon.png" />
+    <Resource Include="Resources\customers_icon.png" />
+    <Resource Include="Resources\dashboard_icon.png" />
+    <Resource Include="Resources\delete_group_icon.png" />
+    <Resource Include="Resources\delete_icon.png" />
+    <Resource Include="Resources\delete_product_icon.png" />
+    <Resource Include="Resources\documents_icon.png" />
+    <Resource Include="Resources\edit_group_icon.png" />
+    <Resource Include="Resources\edit_icon.png" />
+    <Resource Include="Resources\edit_product_icon.png" />
+    <Resource Include="Resources\excel_icon.png" />
+    <Resource Include="Resources\export_icon.png" />
+    <Resource Include="Resources\import_icon.png" />
+    <Resource Include="Resources\new_group_icon.png" />
+    <Resource Include="Resources\new_product_icon.png" />
+    <Resource Include="Resources\payment_icon.png" />
+    <Resource Include="Resources\pdf_icon.png" />
+    <Resource Include="Resources\print_icon.png" />
+    <Resource Include="Resources\products_icon.png" />
+    <Resource Include="Resources\promotions_icon.png" />
+    <Resource Include="Resources\reporting_icon.png" />
+    <Resource Include="Resources\report_icon.png" />
+    <Resource Include="Resources\reset_password_icon.png" />
+    <Resource Include="Resources\save_icon.png" />
+    <Resource Include="Resources\sorting_icon.png" />
+    <Resource Include="Resources\stock_icon.png" />
+    <Resource Include="Resources\tags_icon.png" />
+    <Resource Include="Resources\tax_icon.png" />
+    <Resource Include="Resources\users_icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\refresh_icon.png" />
+  </ItemGroup>
+
+</Project>

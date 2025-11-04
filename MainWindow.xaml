@@ -1,0 +1,785 @@
+﻿<Window x:Class="WEGutters.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="Western Edge Gutters - Inventory Management" Height="700" Width="1000"
+        Background="#2D2D30" Icon="/app_icon.png">
+    
+    <Window.Resources>
+
+        <Style x:Key="NavigationRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="10,0,0,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E40"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DashboardWidgetStyle" TargetType="Border">
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style x:Key="TopActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <StackPanel>
+                                <Image Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Width="24" Height="24" Margin="0,0,0,5"/>
+                                <TextBlock Text="{TemplateBinding Content}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E40"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SearchBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ServiceListItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E40"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ReportActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <Style x:Key="FilterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#3E3E40"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="Height" Value="30"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DarkTabControlStyle" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style x:Key="DarkTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#3E3E40" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#007ACC" />
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PermissionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        
+        <DataTemplate x:Key="EmptyBarTemplate">
+            <Grid/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DashboardMainContentTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource DashboardWidgetStyle}" Grid.Column="0">
+                        <StackPanel>
+                            <TextBlock Text="Monthly Sales - 2025" Foreground="White" FontSize="18"/>
+                            <TextBlock Text="Sales data grouped by month" Foreground="#CCCCCC" FontSize="12" Margin="0,5,0,0"/>
+                            <Border Height="150" Background="#333333" Margin="0,10,0,0" CornerRadius="3">
+                                <TextBlock Text="[Chart Placeholder]" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DashboardWidgetStyle}" Grid.Column="1">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="Total Sales" Foreground="#CCCCCC" FontSize="14" HorizontalAlignment="Center"/>
+                            <TextBlock Text="0" Foreground="White" FontSize="72" FontWeight="Bold" HorizontalAlignment="Center" LineHeight="72"/>
+                            <TextBlock Text="Top performing month:" Foreground="#CCCCCC" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                            <TextBlock Text="0.00" Foreground="White" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <Border Grid.Row="1" Background="#2D2D30" Margin="5,10,5,5" Padding="10" CornerRadius="3">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Periodic Reports (11/4/2025 - 11/4/2025)" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardWidgetStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Top Services" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource DashboardWidgetStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Hourly Sales" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource DashboardWidgetStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Total Sales (Amount)" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="0" Foreground="White" FontSize="60" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource DashboardWidgetStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Top Services Groups" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Top selling services groups in selected period" Foreground="#CCCCCC" FontSize="12" TextWrapping="Wrap"/>
+                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource DashboardWidgetStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Top Customers" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Lead customers in selected period (top 5)" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ServicesTopBarTemplate">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New group" Tag="Resources/new_group_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit group" Tag="Resources/edit_group_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete group" Tag="Resources/delete_group_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New service" Tag="Resources/new_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit service" Tag="Resources/edit_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete service" Tag="Resources/delete_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Price tags" Tag="Resources/tags_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Sorting" Tag="Resources/sorting_icon.png"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ServicesMainContentTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
+                
+                <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
+                    <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Products" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        </ListBox>
+                </Border>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="*" Foreground="#007ACC" FontSize="16" VerticalAlignment="Center" Margin="5,0"/>
+                            <TextBlock Text="#" Grid.Column="1" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" Margin="10,0"/>
+                            <TextBlock Text="&#xE721;" Grid.Column="2" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                            <TextBox Grid.Column="3" Text="Service name" Style="{StaticResource SearchBoxStyle}"/>
+                            <TextBlock Grid.Column="4" Text="Services count: 0" Foreground="#CCCCCC" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="100" Foreground="#444444" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Selected group contains no services" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                            <Button Content="Add new service" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
+                            <TextBlock Text="or" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="5,0"/>
+                            <Button Content="new service group" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="StockTopBarTemplate">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Excel" Tag="Resources/excel_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Inventory count report" Tag="Resources/report_icon.png"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="StockMainContentTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
+                    <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="All Services" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        </ListBox>
+                </Border>
+
+                <DataGrid Grid.Column="1">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="2*"/>
+                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="3*"/>
+                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="*"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="*"/>
+                        <DataGridTextColumn Header="Purchase Cost" Binding="{Binding PurchaseCost}" Width="*"/>
+                        <DataGridTextColumn Header="Sale Price" Binding="{Binding SalePrice}" Width="*"/>
+                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="*"/>
+                        <DataGridTextColumn Header="Qty per bundle" Binding="{Binding QtyPerBundle}" Width="*"/>
+                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="*"/>
+                        <DataGridTextColumn Header="Minimum Count" Binding="{Binding MinCount}" Width="*"/>
+                        <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="2*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ReportingMainContentTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Background="#007ACC" Foreground="White" Content="Select report" Padding="10,5" Margin="0,0,5,5" HorizontalAlignment="Left" Width="120"/>
+                    <Border Grid.Row="1" Background="#252526" Padding="8" Margin="0,0,5,5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Select report to view or print" Foreground="White" FontSize="16" VerticalAlignment="Center"/>
+                            <Grid Grid.Column="1" HorizontalAlignment="Right" Width="200">
+                                <TextBox Text="Search reports" Style="{StaticResource SearchBoxStyle}" Padding="5,5,30,5"/>
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <ListBox Grid.Row="2" Background="Transparent" BorderThickness="0" Margin="0,0,5,0" SelectedIndex="0">
+                        <TextBlock Text="Reports" Foreground="#AAAAAA" FontSize="14" FontWeight="SemiBold" Margin="10,10,0,5" IsHitTestVisible="False" Focusable="False"/>
+
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/clipboard_icon.png" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Services" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/clipboard_icon.png" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Stock" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/clipboard_icon.png" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Customers" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/clipboard_icon.png" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Users" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                    </ListBox>
+                </Grid>
+                
+                <Border Grid.Column="1" Background="#252526" Padding="10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button Content="Show report" Background="#3E3E40" Foreground="#CCCCCC" Margin="0,30,0,10" Padding="10" FocusVisualStyle="{x:Null}"/>
+                            <Button Content="Print" Background="#3E3E40" Foreground="#CCCCCC" Margin="0,0,0,10" Padding="10" FocusVisualStyle="{x:Null}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="Excel" Style="{StaticResource FilterButtonStyle}"/>
+                                <Button Grid.Column="1" Content="PDF" Style="{StaticResource FilterButtonStyle}"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="CustomersTopBarTemplate">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Add" Tag="Resources/add_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit" Tag="Resources/edit_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete" Tag="Resources/delete_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Import" Tag="Resources/import_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Export" Tag="Resources/export_icon.png"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CustomersMainContentTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Name" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                        <Grid Grid.Column="1">
+                            <TextBox Text="Search customers" Style="{StaticResource SearchBoxStyle}" Padding="5,5,30,5"/>
+                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <DataGrid Grid.Row="1">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="Auto"/>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*"/>
+                        <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="3*"/>
+                        <DataGridTextColumn Header="Country" Binding="{Binding Country}" Width="*"/>
+                        <DataGridTextColumn Header="Phone number" Binding="{Binding Phone}" Width="2*"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="2*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="UsersTopBarTemplate">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Add user" Tag="Resources/new_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit" Tag="Resources/edit_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete" Tag="Resources/delete_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Reset password" Tag="Resources/reset_password_icon.png"/>
+            </WrapPanel>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="SecurityTopBarTemplate">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save" Tag="Resources/save_icon.png"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SecurityPermissionRowTemplate">
+            <Grid Margin="0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding}" Foreground="#CCCCCC" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="-" Style="{StaticResource PermissionButtonStyle}"/>
+                    <TextBox Text="0" Style="{StaticResource SearchBoxStyle}" Width="40" TextAlignment="Center"/>
+                    <Button Content="+" Style="{StaticResource PermissionButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="UsersTabContentTemplate">
+            <DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="2*"/>
+                    <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="2*"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="3*"/>
+                    <DataGridTextColumn Header="Access level" Binding="{Binding AccessLevel}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SecurityTabContentTemplate">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="Set access level for predefined operations" Foreground="White" FontSize="16"/>
+                    <TextBlock Text="Select access level for each action in order to set required user permissions." Foreground="#CCCCCC" Margin="0,5,0,0"/>
+                    
+                    <Border Background="#007ACC" Padding="10" Margin="0,20,0,0">
+                        <TextBlock Text="General" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                    </Border>
+                    <Border Background="#252526" Padding="10">
+                        <ItemsControl ItemTemplate="{StaticResource SecurityPermissionRowTemplate}">
+                            <ItemsControl.Items>
+                                <sys:String>Management (all access)</sys:String>
+                                <sys:String>Customers</sys:String>
+                                <sys:String>Reporting</sys:String>
+                                <sys:String>Stock</sys:String>
+                                <sys:String>Services</sys:String>
+                            </ItemsControl.Items>
+                        </ItemsControl>
+                    </Border>
+                    
+                    </StackPanel>
+            </ScrollViewer>
+        </DataTemplate>
+
+        <DataTemplate x:Key="UsersAndSecurityMainContentTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+
+                <TabControl x:Name="InternalTabControl" Style="{StaticResource DarkTabControlStyle}" Margin="0,0,0,5">
+                    <TabItem Header="Users" Style="{StaticResource DarkTabItemStyle}"/>
+                    <TabItem Header="Security" Style="{StaticResource DarkTabItemStyle}"/>
+                </TabControl>
+
+                <Border Grid.Row="1" Background="#2D2D30" Padding="5" MinHeight="68">
+                    <ContentControl x:Name="TopBarSwitcher">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="ContentTemplate" Value="{StaticResource UsersTopBarTemplate}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="1">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource SecurityTopBarTemplate}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </Border>
+                
+                <ContentControl Grid.Row="2" x:Name="MainContentSwitcher">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate" Value="{StaticResource UsersTabContentTemplate}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="1">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource SecurityTabContentTemplate}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+
+            </Grid>
+        </DataTemplate>
+
+    </Window.Resources>
+    
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/> <ColumnDefinition Width="*"/>   </Grid.ColumnDefinitions>
+
+        <Border Background="#252526" Grid.Column="0">
+            <StackPanel>
+                <TextBlock Text="Western Edge Gutters" Foreground="White" FontSize="16" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                <RadioButton x:Name="rbDashboard" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation" IsChecked="True" Margin="0,5,0,0">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/dashboard_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Dashboard"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                
+                <RadioButton x:Name="rbServices" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/products_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Services"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                
+                <RadioButton x:Name="rbStock" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/stock_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Stock"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                
+                <RadioButton x:Name="rbReporting" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/reporting_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Reporting"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                
+                <RadioButton x:Name="rbCustomers" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/customers_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Customers"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+                
+                <RadioButton x:Name="rbUsersAndSecurity" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                    <RadioButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Resources/users_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="Users &amp; Security"/>
+                        </StackPanel>
+                    </RadioButton.Content>
+                </RadioButton>
+
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    <RowDefinition Height="Auto"/> </Grid.RowDefinitions>
+
+            <Border Background="#2D2D30" Padding="5" MinHeight="68">
+                <ContentControl>
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate" Value="{StaticResource EmptyBarTemplate}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=rbServices, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ServicesTopBarTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbCustomers, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource CustomersTopBarTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbUsersAndSecurity, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource EmptyBarTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource StockTopBarTemplate}"/>
+                                </DataTrigger>
+                                </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+            </Border>
+
+            <Border Grid.Row="1" Background="#1E1E1E" Margin="5" Padding="5">
+                <ContentControl>
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate" Value="{StaticResource DashboardMainContentTemplate}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=rbServices, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ServicesMainContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbReporting, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ReportingMainContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbCustomers, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource CustomersMainContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbUsersAndSecurity, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource UsersAndSecurityMainContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>
+                                </DataTrigger>
+                                </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+            </Border>
+
+            <Border Grid.Row="2" Background="#2D2D30" Padding="5" VerticalAlignment="Bottom" MinHeight="30">
+                <ContentControl>
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate" Value="{StaticResource EmptyBarTemplate}"/>
+                            <Style.Triggers>
+                                </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
