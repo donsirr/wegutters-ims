@@ -335,7 +335,7 @@
                         <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Products" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Services" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ListBoxItem>
                         </ListBox>
@@ -377,6 +377,9 @@
 
         <DataTemplate x:Key="StockTopBarTemplate">
             <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Add product" Tag="Resources/new_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit product" Tag="Resources/edit_product_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Remove product" Tag="Resources/delete_product_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png"/>
