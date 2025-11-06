@@ -311,17 +311,19 @@
 
         <DataTemplate x:Key="ServicesTopBarTemplate">
             <WrapPanel>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="New group" Tag="Resources/new_group_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit group" Tag="Resources/edit_group_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete group" Tag="Resources/delete_group_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="New service" Tag="Resources/new_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit service" Tag="Resources/edit_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete service" Tag="Resources/delete_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Price tags" Tag="Resources/tags_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Sorting" Tag="Resources/sorting_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="Services_Refresh_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New service" Tag="Resources/new_group_icon.png" Click="Services_NewService_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit service" Tag="Resources/edit_group_icon.png" Click="Services_EditService_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete service" Tag="Resources/delete_group_icon.png" Click="Services_DeleteService_Click"/>
+
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New product" Tag="Resources/new_product_icon.png" Click="Services_NewService_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit product" Tag="Resources/edit_product_icon.png" Click="Services_EditService_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete product" Tag="Resources/delete_product_icon.png" Click="Services_DeleteService_Click"/>
+
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png" Click="Services_Print_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png" Click="Services_SaveAsPdf_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Price tags" Tag="Resources/tags_icon.png" Click="Services_PriceTags_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Sorting" Tag="Resources/sorting_icon.png" Click="Services_Sorting_Click"/>
             </WrapPanel>
         </DataTemplate>
 
@@ -368,7 +370,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                             <Button Content="Add new service" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
                             <TextBlock Text="or" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="5,0"/>
-                            <Button Content="new service group" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
+                            <Button Content="New service group" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -377,14 +379,11 @@
 
         <DataTemplate x:Key="StockTopBarTemplate">
             <WrapPanel>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Add product" Tag="Resources/new_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit product" Tag="Resources/edit_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Remove product" Tag="Resources/delete_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Excel" Tag="Resources/excel_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Inventory count report" Tag="Resources/report_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="Stock_Refresh_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png" Click="Stock_Print_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png" Click="Stock_SaveAsPdf_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Excel" Tag="Resources/excel_icon.png" Click="Stock_Excel_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Inventory count report" Tag="Resources/report_icon.png" Click="Stock_InventoryReport_Click"/>
             </WrapPanel>
         </DataTemplate>
 
