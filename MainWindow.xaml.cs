@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,11 +21,81 @@ namespace WEGutters
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
         public MainWindow()
-        {
+        {            
             InitializeComponent();
+            InventoryList = new ObservableCollection<InventoryItemDisplay>();
+            InventoryList.Add(testItem());
+            this.DataContext = this;
         }
         #region Stock Button Functionality
+
+        private InventoryItemDisplay testItem()
+        {
+            SKU sKU = new SKU(1, "GUT-AL-5", "Aluminum Gutter SKU", 1);
+            BaseItem baseItem = new BaseItem(1, sKU,"Aluminum Gutter", "Amazing", "Gutter","Pc", 5.00f, 10.00f);
+            InventoryItem inventoryItem = new InventoryItem(1, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 100, 10);
+            InventoryItemDisplay inventoryItemDisplay = inventoryItem.ToDisplay();
+            return inventoryItemDisplay;
+        }
+
+        public void AddTestRow()
+        {
+            // use unique id based on current count to avoid duplicates
+            int id = InventoryList.Count + 1;
+            SKU sKU = new SKU(id, $"TEST-SKU-{id}", "Test SKU", 1);
+            BaseItem baseItem = new BaseItem(id, sKU, $"Test Item {id}", "Default test item", "TestCategory", "Pc", 1.00f, 2.50f);
+            InventoryItem inventoryItem = new InventoryItem(id, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 25, 5);
+            InventoryList.Add(inventoryItem.ToDisplay());
+        }
+        public void testAdd()
+        {
+            SKU sKU = new SKU(1, "GUT-AL-5", "Aluminum Gutter SKU", 1);
+            BaseItem baseItem = new BaseItem(1, sKU, "Aluminum Gutter", "Amazing", "Gutter", "Pc", 5.00f, 10.00f);
+            InventoryItem inventoryItem = new InventoryItem(1, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 100, 10);
+            InventoryItemDisplay inventoryItemDisplay = inventoryItem.ToDisplay();
+            InventoryList.Add(inventoryItemDisplay);
+        }
+
+        private void Stock_NewItem_Click(object sender, RoutedEventArgs e)
+        {
+            AddTestRow();
+            // TODO: Add logic here to:
+            // 1. Add Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+            AddEditServiceWindow addServiceWindow = new AddEditServiceWindow();
+            addServiceWindow.Owner = this; // Set this window as the owner
+            addServiceWindow.Title = "Add New Service";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addServiceWindow.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true)
+            {
+                // If they saved, add item to the data grid
+               
+            }
+            MessageBox.Show("Add Item... (functionality to be added)");
+        }
+        private void Stock_EditItem_Click(object sender, RoutedEventArgs e)
+        {
+            testAdd();
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+
+            MessageBox.Show("Edit Item... (functionality to be added)");
+        }
+        private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Remove Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+
+            MessageBox.Show("Delete Item... (functionality to be added)");
+        }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
