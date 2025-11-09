@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WEGutters"
         mc:Ignorable="d"
-        Title="Add Item" Height="500" Width="400"
+        Title="Add Item" Height="525" Width="400"
         Background="#2D2D30" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
 
     <Window.Resources>
@@ -25,6 +25,7 @@
             <Setter Property="BorderBrush" Value="#555555"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="SelectedIndex" Value="0"/>
         </Style>
     </Window.Resources>
 
@@ -34,7 +35,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -46,47 +47,60 @@
         </Grid.RowDefinitions>
 
         <TextBlock Text="Item Name:" Foreground="White" Margin="0,5"/>
-        <ComboBox Grid.Row="1" x:Name="ItemNameComboBox" ItemsSource="{Binding BaseItemCollection}" Style="{StaticResource ComboBoxStyle}"/>
 
+        <!-- Item -->
+        <Grid Grid.Row="1" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+                <ComboBox Grid.Row="0" x:Name="ItemNameComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding BaseItemCollection}" 
+                          DisplayMemberPath="ItemName" SelectedValuePath="ItemID"
+                          SelectionChanged="ItemNameComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name="MakeBaseItemButton"  Content="+" Click="MakeBaseItemButton_Click"  Margin="10,0,0,0"/>
+        </Grid>
+        
         <TextBlock Grid.Row="2" Text="Item Details:" Foreground="White" Margin="0,5"/>
         <TextBox Grid.Row="3" x:Name="ItemDetailsBox" Style="{StaticResource SearchBoxStyle}"/>
-
+        
+        <!-- Category -->
         <TextBlock Grid.Row="4" Text="Category:" Foreground="White" Margin="0,5"/>
         <Grid Grid.Row="5" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ComboBox Grid.Column="0" x:Name="CategoryComboBox" ItemsSource="{Binding CategoryCollection}" Style="{StaticResource ComboBoxStyle}"/>
-            <Button Grid.Column="1" x:Name="MakeCategoryButton"  Content="+" Click="MakeCategoryButton_Click"  Margin="5,0,0,0"/>
+                <ComboBox Grid.Column="0" x:Name="CategoryComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding CategoryCollection, RelativeSource={RelativeSource AncestorType=Window}}"
+                          DisplayMemberPath="CategoryName" SelectedValuePath="CategoryID" 
+                          SelectionChanged="ComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name="MakeCategoryButton"  Content="+" Click="MakeCategoryButton_Click"  Margin="10,0,0,0"/>
         </Grid>
-
+        <!-- SKU Section -->
         <TextBlock Grid.Row="6" Text="SKU:" Foreground="White" Margin="0,5"/>
         <Grid Grid.Row="7" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ComboBox Grid.Column="0" x:Name="SKUComboBox" ItemsSource="{Binding SKUCollection}" Style="{StaticResource ComboBoxStyle}"/>
-            <Button Grid.Column="1" x:Name ="MakeSKUButton" Content="+" Click="MakeSKUButton_Click"  Margin="5,0,0,0"/>
+                <ComboBox Grid.Column="0" x:Name="SKUComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding SKUCollection, RelativeSource={RelativeSource AncestorType=Window}}"
+                          DisplayMemberPath="SKUCode" SelectedValuePath="SKUID"
+                          SelectionChanged="ComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name ="MakeSKUButton" Content="+" Click="MakeSKUButton_Click"  Margin="10,0,0,0"/>
         </Grid>
 
         <Grid Grid.Row="8" Margin="0,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                <TextBlock Text="Purchase Cost:" Foreground="White"/>
-                <TextBox x:Name="PurchaseCostBox" Style="{StaticResource SearchBoxStyle}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                <TextBlock Text="Sale Price:" Foreground="White"/>
-                <TextBox x:Name="SalePriceBox" Style="{StaticResource SearchBoxStyle}"/>
-            </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="9" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -101,7 +115,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="10" Margin="0,5">
+        <Grid Grid.Row="9" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -113,6 +127,21 @@
             <StackPanel Grid.Column="1" Margin="5,0,0,0">
                 <TextBlock Text="Minimum Quantity:" Foreground="White"/>
                 <TextBox x:Name="MinimumQuantityBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="10" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Purchase Cost:" Foreground="White"/>
+                <TextBox x:Name="PurchaseCostBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Sale Price:" Foreground="White"/>
+                <TextBox x:Name="SalePriceBox" Style="{StaticResource SearchBoxStyle}"/>
             </StackPanel>
         </Grid>
 

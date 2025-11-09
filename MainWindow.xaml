@@ -756,7 +756,7 @@
 
             <!-- Content Control -->
             <Border Grid.Row="1" Background="#1E1E1E" Margin="5" Padding="5">
-                <ContentControl>
+                <ContentControl x:Name="ContentControlPanel">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
                             <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>

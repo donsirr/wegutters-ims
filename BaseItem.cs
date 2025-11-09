@@ -6,28 +6,28 @@ using System.Threading.Tasks;
 
 namespace WEGutters
 {
-    internal class BaseItem
+    public class BaseItem
     {
         private int itemID;
-        private SKU SKU;
+        private SKU SKU; // skuID
         private string SKU_Code;
         private string itemName;
         private string itemDetails;
-        private string category;
+        private Category category; //catID
+        private string categoryName;
         private string unit;
-        private float purchaseCost;
-        private float salePrice;
+        private int quantityPerBundle;
 
-        public BaseItem(int itemID, SKU SKU, string itemName, string itemDetails, string category, string unit, float purchaseCost, float salePrice)
+
+        public BaseItem(SKU SKU, string itemName, string itemDetails, Category category, string unit, int quantityPerBundle)
         {
-            this.itemID = itemID;
+            //this.itemID = itemID;
             this.SKU = SKU;
             this.itemName = itemName;
             this.itemDetails = itemDetails;
             this.category = category;
             this.unit = unit;
-            this.purchaseCost = purchaseCost;
-            this.salePrice = salePrice;
+            this.quantityPerBundle = quantityPerBundle;
         }
         public int ItemID
         {
@@ -52,7 +52,7 @@ namespace WEGutters
                 if (value != null)
                 {
                     SKU = value;
-                    SKU_Code = value.SKUCode;
+                    SKUCode = value.SKUCode;
                 }
                 else
                 {
@@ -63,6 +63,17 @@ namespace WEGutters
         public string SKUCode
         {
             get { return SKU.SKUCode; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    SKU_Code = value;
+                }
+                else
+                {
+                    throw new ArgumentException("SKU Code cannot be empty");
+                }
+            }
         }
         public string ItemName
         {
@@ -94,12 +105,12 @@ namespace WEGutters
                 }
             }
         }
-        public string Category
+        public Category Category
         {
             get { return category; }
             set
             {
-                if (!string.IsNullOrEmpty(value))
+                if (value != null)
                 {
                     category = value;
                 }
@@ -124,33 +135,18 @@ namespace WEGutters
                 }
             }
         }
-        public float PurchaseCost
+        public int QuantityPerBundle
         {
-            get { return purchaseCost; }
+            get { return quantityPerBundle; }
             set
             {
                 if (value >= 0)
                 {
-                    purchaseCost = value;
+                    quantityPerBundle = value;
                 }
                 else
                 {
-                    throw new ArgumentException("Purchase Cost cannot be negative");
-                }
-            }
-        }
-        public float SalePrice
-        {
-            get { return salePrice; }
-            set
-            {
-                if (value >= 0)
-                {
-                    salePrice = value;
-                }
-                else
-                {
-                    throw new ArgumentException("Sale Price cannot be negative");
+                    throw new ArgumentException("Quantity per bundle cannot be negative");
                 }
             }
         }
@@ -160,15 +156,13 @@ namespace WEGutters
             return this;
         }
 
-        public void editItem(SKU SKU, string itemName, string itemDetails, string category, string unit, float purchaseCost, float salePrice)
+        public void editItem(SKU SKU, string itemName, string itemDetails, Category category, string unit)
         {
             SKUProperty = SKU;
             ItemName = itemName;
             ItemDetails = itemDetails;
             Category = category;
             Unit = unit;
-            PurchaseCost = purchaseCost;
-            SalePrice = salePrice;
         }
     }
 }

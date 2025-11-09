@@ -22,70 +22,88 @@ namespace WEGutters
     public partial class MainWindow : Window
     {
         public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
+
         public MainWindow()
         {            
             InitializeComponent();
             InventoryList = new ObservableCollection<InventoryItemDisplay>();
-            InventoryList.Add(testItem());
             this.DataContext = this;
         }
+
+        // Source - https://stackoverflow.com/a
+        // Posted by Aleksey
+        // Retrieved 2025-11-09, License - CC BY-SA 3.0
+        public T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
+        {
+            T childElement = null;
+            var nChildCount = VisualTreeHelper.GetChildrenCount(element);
+            for (int i = 0; i < nChildCount; i++)
+            {
+                FrameworkElement child = VisualTreeHelper.GetChild(element, i) as FrameworkElement;
+
+                if (child == null)
+                    continue;
+
+                if (child is T && child.Name.Equals(sChildName))
+                {
+                    childElement = (T)child;
+                    break;
+                }
+
+                childElement = FindElementByName<T>(child, sChildName);
+
+                if (childElement != null)
+                    break;
+            }
+            return childElement;
+        }
+
         #region Stock Button Functionality
-
-        private InventoryItemDisplay testItem()
-        {
-            SKU sKU = new SKU(1, "GUT-AL-5", "Aluminum Gutter SKU", 1);
-            BaseItem baseItem = new BaseItem(1, sKU,"Aluminum Gutter", "Amazing", "Gutter","Pc", 5.00f, 10.00f);
-            InventoryItem inventoryItem = new InventoryItem(1, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 100, 10);
-            InventoryItemDisplay inventoryItemDisplay = inventoryItem.ToDisplay();
-            return inventoryItemDisplay;
-        }
-
-        public void AddTestRow()
-        {
-            // use unique id based on current count to avoid duplicates
-            int id = InventoryList.Count + 1;
-            SKU sKU = new SKU(id, $"TEST-SKU-{id}", "Test SKU", 1);
-            BaseItem baseItem = new BaseItem(id, sKU, $"Test Item {id}", "Default test item", "TestCategory", "Pc", 1.00f, 2.50f);
-            InventoryItem inventoryItem = new InventoryItem(id, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 25, 5);
-            InventoryList.Add(inventoryItem.ToDisplay());
-        }
-        public void testAdd()
-        {
-            SKU sKU = new SKU(1, "GUT-AL-5", "Aluminum Gutter SKU", 1);
-            BaseItem baseItem = new BaseItem(1, sKU, "Aluminum Gutter", "Amazing", "Gutter", "Pc", 5.00f, 10.00f);
-            InventoryItem inventoryItem = new InventoryItem(1, baseItem, DateTime.Now.ToString("yyyy-MM-dd"), 100, 10);
-            InventoryItemDisplay inventoryItemDisplay = inventoryItem.ToDisplay();
-            InventoryList.Add(inventoryItemDisplay);
-        }
 
         private void Stock_NewItem_Click(object sender, RoutedEventArgs e)
         {
-            AddTestRow();
             // TODO: Add logic here to:
-            // 1. Add Item.
-            // 2. Update the Stock DataGrid's ItemsSource.
-            AddEditServiceWindow addServiceWindow = new AddEditServiceWindow();
-            addServiceWindow.Owner = this; // Set this window as the owner
-            addServiceWindow.Title = "Add New Service";
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource. !!
+            AddEditItem addItemWindow = new AddEditItem(true);
+            addItemWindow.Owner = this; // Set this window as the owner
+            addItemWindow.Title = "Add New Item";
 
             // ShowDialog() opens the window and pauses code here until the user closes it
-            bool? result = addServiceWindow.ShowDialog();
+            bool? result = addItemWindow.ShowDialog();
 
             // Check if the user clicked "Save"
             if (result == true)
             {
                 // If they saved, add item to the data grid
-               
+                MessageBox.Show(addItemWindow.ReturnItem == null ? "null" : "not null");
+                InventoryList.Add(addItemWindow.ReturnItem.ToDisplay());
             }
-            MessageBox.Show("Add Item... (functionality to be added)");
+            MessageBox.Show("Add Item... (database functionality to be added)");
         }
         private void Stock_EditItem_Click(object sender, RoutedEventArgs e)
         {
-            testAdd();
             // TODO: Add logic here to:
             // 1. Edit Item.
             // 2. Update the Stock DataGrid's ItemsSource.
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+            {
+                AddEditItem addItemWindow = new AddEditItem(false, selectedItem.itemInstance);
+                addItemWindow.Owner = this; // Set this window as the owner
+                addItemWindow.Title = "Edit Item";
 
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = addItemWindow.ShowDialog();
+
+                // Check if the user clicked "Save"
+                    if (result == true)
+                    {
+                        // If they saved, add item to the data grid
+                        int selectedIndex = dataGrid.SelectedIndex;
+                        InventoryList[selectedIndex] = addItemWindow.ReturnItem.ToDisplay();
+                }
+            }
             MessageBox.Show("Edit Item... (functionality to be added)");
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
@@ -93,7 +111,11 @@ namespace WEGutters
             // TODO: Add logic here to:
             // 1. Remove Item.
             // 2. Update the Stock DataGrid's ItemsSource.
-
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+            {
+                InventoryList.Remove(selectedItem);
+            }
             MessageBox.Show("Delete Item... (functionality to be added)");
         }
 
@@ -161,7 +183,7 @@ namespace WEGutters
 
             // ShowDialog() opens the window and pauses code here until the user closes it
             bool? result = addServiceWindow.ShowDialog();
-
+            
             // Check if the user clicked "Save"
             if (result == true)
             {

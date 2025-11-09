@@ -7,22 +7,18 @@ using System.Xml.Linq;
 
 namespace WEGutters
 {
-    internal class SKU
+    public class SKU
     {
         private int SKU_ID;
         private string SKU_Code;
-        private string SKU_Details;
-        private int quantityPerBundle;
 
-        public SKU (int skuID, string skuCode, string skuDetails, int quantityPerBundle)
+        public SKU (string skuCode)
         {
-            SKU_ID = skuID;
+            //SKU_ID = skuID;
             SKU_Code = skuCode;
-            SKU_Details = skuDetails;
-            this.quantityPerBundle = quantityPerBundle;
         }
 
-        public int SKUId
+        public int SKUID
         {
             get { return SKU_ID; }
             set
@@ -50,38 +46,6 @@ namespace WEGutters
                 else
                 {
                     throw new ArgumentException("SKU Code cannot be empty");
-                }
-            }
-        }
-
-        public string SKUDetails
-        {
-            get { return SKU_Details; }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    SKU_Details = value;
-                }
-                else
-                {
-                    throw new ArgumentException("SKU Details cannot be empty");
-                }
-            }
-        }
-
-        public int QuantityPerBundle
-        {
-            get { return quantityPerBundle; }
-            set
-            {
-                if (value >= 0)
-                {
-                    quantityPerBundle = value;
-                }
-                else
-                {
-                    throw new ArgumentException("Quantity per bundle cannot be negative");
                 }
             }
         }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WEGutters
 {
     public class InventoryItemDisplay
     {
-        public int InventoryId { get; set; }
-        public int ItemID { get; set; }
+        //public int InventoryId { get; set; }
+        public InventoryItem itemInstance { get; set; }
         public string ItemName { get; set; } = string.Empty;
         public string ItemDetails { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
@@ -21,43 +22,54 @@ namespace WEGutters
         public string Unit { get; set; } = string.Empty;
         public int MinCount { get; set; }
         public string LastModified { get; set; } = string.Empty;
+        public string CreatedDate { get; set; } = string.Empty;
     }
-    internal class InventoryItem
+    public class InventoryItem
     {
         private int inventoryID;
         private BaseItem item;
-        private string lastModified;
         private int quantity;
         private int minQuantity;
+        private float purchaseCost;
+        private float salePrice;
+        private string lastModified;
+        private string createdDate;
 
-        public InventoryItem(int inventoryID, BaseItem item, string lastModified, int quantity, int minQuantity)
+        public InventoryItem(BaseItem item, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
         {
-            this.inventoryID = inventoryID;
             this.item = item;
-            this.lastModified = lastModified;
             this.quantity = quantity;
             this.minQuantity = minQuantity;
+            this.purchaseCost = purchaseCost;
+            this.salePrice = salePrice;
+            this.lastModified = lastModified;
+            this.createdDate = createdDate;
         }
 
+        // calls the InventoryItemDisplay and de-encapsulates the properties from InventoryItem and BaseItem
         public InventoryItemDisplay ToDisplay()
         {
+            if (item == null)
+                throw new InvalidOperationException("Cannot convert to display: BaseItem is null.");
+
             return new InventoryItemDisplay
             {
-                InventoryId = this.InventoryId,
-                ItemID = this.ItemID,
-                ItemName = item.ItemName,
-                ItemDetails = item.ItemDetails,
-                Category = item.Category,
-                SKU = item.SKUProperty.SKUCode,
-                PurchaseCost = item.PurchaseCost,
-                SalePrice = item.SalePrice,
+                ItemName = item.ItemName ?? string.Empty,
+                ItemDetails = item.ItemDetails ?? string.Empty,
+                Category = item.Category?.CategoryName ?? string.Empty,
+                SKU = item.SKUProperty?.SKUCode ?? string.Empty,
+                PurchaseCost = this.PurchaseCost,
+                SalePrice = this.SalePrice,
                 Quantity = this.Quantity,
-                QtyPerBundle = item.SKUProperty.QuantityPerBundle,
-                Unit = item.Unit,
+                QtyPerBundle = item.QuantityPerBundle,
+                Unit = item.Unit ?? string.Empty,
                 MinCount = this.MinQuantity,
-                LastModified = this.LastModified
+                LastModified = this.LastModified ?? string.Empty,
+                CreatedDate = this.CreatedDate ?? string.Empty,
+                itemInstance = this
             };
         }
+
 
         public int InventoryId
         {   get { return inventoryID; }
@@ -107,6 +119,21 @@ namespace WEGutters
                 }
             }
         }
+        public string CreatedDate
+        {
+            get { return createdDate; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    createdDate = value;
+                }
+                else
+                {
+                    throw new ArgumentException("Created Date cannot be empty");
+                }
+            }
+        }
         public int Quantity
         {
             get { return quantity; }
@@ -137,18 +164,51 @@ namespace WEGutters
                 }
             }
         }
+        public float PurchaseCost
+        {
+            get { return purchaseCost; }
+            set
+            {
+                if (value >= 0)
+                {
+                    purchaseCost = value;
+                }
+                else
+                {
+                    throw new ArgumentException("Purchase Cost cannot be negative");
+                }
+            }
+        }
+        public float SalePrice
+        {
+            get { return salePrice; }
+            set
+            {
+                if (value >= 0)
+                {
+                    salePrice = value;
+                }
+                else
+                {
+                    throw new ArgumentException("Sale Price cannot be negative");
+                }
+            }
+        }
 
-        public void editInventoryItem(BaseItem newItem, string newLastModified, int newQuantity, int newMinQuantity)
+        public void editInventoryItem(BaseItem newItem, string newLastModified, int newQuantity, int newMinQuantity, float purchaseCost, float salePrice)
         {
             Item = newItem;
             LastModified = newLastModified;
             Quantity = newQuantity;
             MinQuantity = newMinQuantity;
+            PurchaseCost = purchaseCost;
+            SalePrice = salePrice;
+
         }
 
         public float calcProjectedSale()
         {
-            return item.SalePrice * quantity;
+            return salePrice * quantity;
         }
 
         public InventoryItem GetInventoryItem()
