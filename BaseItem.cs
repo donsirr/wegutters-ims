@@ -52,7 +52,6 @@ namespace WEGutters
                 if (value != null)
                 {
                     SKU = value;
-                    SKUCode = value.SKUCode;
                 }
                 else
                 {
@@ -60,21 +59,7 @@ namespace WEGutters
                 }
             }
         }
-        public string SKUCode
-        {
-            get { return SKU.SKUCode; }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    SKU_Code = value;
-                }
-                else
-                {
-                    throw new ArgumentException("SKU Code cannot be empty");
-                }
-            }
-        }
+
         public string ItemName
         {
             get { return itemName; }

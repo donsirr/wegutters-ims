@@ -759,7 +759,7 @@
                 <ContentControl x:Name="ContentControlPanel">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
-                            <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>
+                            <Setter Property="ContentTemplate" Value="{StaticResource DashboardMainContentTemplate}"/>
                             <!-- Default should be DashboardMainContentTemplate -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ElementName=rbServices, Path=IsChecked}" Value="True">

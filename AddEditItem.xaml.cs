@@ -31,19 +31,11 @@ namespace WEGutters
         public AddEditItem(bool isNew, InventoryItem currentItem = null)
         {
             InitializeComponent();
-            //updateCategoryComboBox();
-            //updateSKUComboBox();
-            CategoryCollection.Add(new Category("Add New Category"));
-            CategoryCollection.Add(new Category("123"));
-            CategoryCollection.Add(new Category("456"));
-            SKUCollection.Add(new SKU("Add New SKU"));
-            SKUCollection.Add(new SKU("Otherrrr"));
-            SKU skutest = new SKU("TestSKU");
-            Category categtest = new Category("TestCategory");
-            CategoryCollection.Add(categtest);
-            SKUCollection.Add(skutest);
-            BaseItemCollection.Add(new BaseItem(null, "Add New Item", null, null, null, 0));
-            BaseItemCollection.Add(new BaseItem(skutest, "Item1", "test", categtest  , "tes", 0));
+
+            updateCategoryComboBox(DatabaseAccess.GetCategories());
+            updateSKUComboBox(DatabaseAccess.GetSKUs());
+            updateBaseItemComboBox(DatabaseAccess.GetBaseItems());
+
             this.isNew = isNew;
             ReturnItem = currentItem;
             DataContext = this;
@@ -109,10 +101,18 @@ namespace WEGutters
         private void updateCategoryComboBox(ObservableCollection<Category> Categories)
         {
             CategoryCollection = Categories;
+            CategoryCollection.Insert(0,(new Category("Add New Category")));
         }
         private void updateSKUComboBox(ObservableCollection<SKU> SKUs)
         {
             SKUCollection = SKUs;
+            SKUCollection.Insert(0,(new SKU("Add New SKU")));
+        }
+
+        private void updateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
+        {
+            BaseItemCollection = BaseItems;
+            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, null, 0)));
         }
         private void MakeBaseItemButton_Click(object sender, RoutedEventArgs e)
         {
@@ -243,7 +243,6 @@ namespace WEGutters
                     category,
                     UnitBox.Text,
                     Convert.ToInt32(QuantityPerBundleBox.Text));
-                MessageBox.Show(category.CategoryName + sku.SKUCode + baseItem.ItemName);
                 return baseItem;
             }
             else
