@@ -202,10 +202,29 @@ namespace WEGutters
         // This method will save the grid as a PDF
         private void Stock_SaveAsPdf_Click(object sender, RoutedEventArgs e)
         {
-            // PDF generation requires a third-party library (a "NuGet package")
-            // such as "PdfSharp" or "iTextSharp".
+            try
+            {
+                // Call the ExportToPDF to generate PDF
+                bool exported = ExportToPDF.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Save as PDF... (requires PDF library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // ExportWithSaveDialog already wrote file; optionally inform user
+                    MessageBox.Show("PDF exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export PDF:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will save the grid as an Excel file

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XNSDNpf8OMk=",
+  "dgSpecHash": "sGSNLztptkg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\WEGutters.csproj",
+  "projectFilePath": "C:\\Users\\Jullian\\Source\\Repos\\stenlandfork-wegutters-ims\\WEGutters.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Jullian\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
@@ -25,6 +25,7 @@
     "C:\\Users\\Jullian\\.nuget\\packages\\microsoft.identitymodel.protocols.openidconnect\\7.7.1\\microsoft.identitymodel.protocols.openidconnect.7.7.1.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\microsoft.identitymodel.tokens\\7.7.1\\microsoft.identitymodel.tokens.7.7.1.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
+    "C:\\Users\\Jullian\\.nuget\\packages\\questpdf\\2025.7.4\\questpdf.2025.7.4.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\stub.system.data.sqlite.core.netstandard\\1.0.119\\stub.system.data.sqlite.core.netstandard.1.0.119.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\system.clientmodel\\1.5.1\\system.clientmodel.1.5.1.nupkg.sha512",
     "C:\\Users\\Jullian\\.nuget\\packages\\system.configuration.configurationmanager\\8.0.1\\system.configuration.configurationmanager.8.0.1.nupkg.sha512",
