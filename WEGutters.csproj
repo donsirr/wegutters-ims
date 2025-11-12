@@ -47,6 +47,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="app_icon.png" />
     <Resource Include="Resources\add_icon.png" />
     <Resource Include="Resources\clipboard_icon.png" />
@@ -84,6 +89,12 @@
 
   <ItemGroup>
     <Resource Include="Resources\refresh_icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="WesternEdgeDB.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,153 @@
+﻿<Window x:Class="WEGutters.AddEditItem"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WEGutters"
+        mc:Ignorable="d"
+        Title="Add Item" Height="525" Width="400"
+        Background="#2D2D30" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+
+    <Window.Resources>
+        <Style x:Key="SearchBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#3E3E40"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="SelectedIndex" Value="0"/>
+        </Style>
+    </Window.Resources>
+
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Item Name:" Foreground="White" Margin="0,5"/>
+
+        <!-- Item -->
+        <Grid Grid.Row="1" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+                <ComboBox Grid.Row="0" x:Name="ItemNameComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding BaseItemCollection}" 
+                          DisplayMemberPath="ItemName" SelectedValuePath="ItemID"
+                          SelectionChanged="ItemNameComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name="MakeBaseItemButton"  Content="+" Click="MakeBaseItemButton_Click"  Margin="10,0,0,0"/>
+        </Grid>
+        
+        <TextBlock Grid.Row="2" Text="Item Details:" Foreground="White" Margin="0,5"/>
+        <TextBox Grid.Row="3" x:Name="ItemDetailsBox" Style="{StaticResource SearchBoxStyle}"/>
+        
+        <!-- Category -->
+        <TextBlock Grid.Row="4" Text="Category:" Foreground="White" Margin="0,5"/>
+        <Grid Grid.Row="5" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+                <ComboBox Grid.Column="0" x:Name="CategoryComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding CategoryCollection, RelativeSource={RelativeSource AncestorType=Window}}"
+                          DisplayMemberPath="CategoryName" SelectedValuePath="CategoryID" 
+                          SelectionChanged="ComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name="MakeCategoryButton"  Content="+" Click="MakeCategoryButton_Click"  Margin="10,0,0,0"/>
+        </Grid>
+        <!-- SKU Section -->
+        <TextBlock Grid.Row="6" Text="SKU:" Foreground="White" Margin="0,5"/>
+        <Grid Grid.Row="7" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+                <ComboBox Grid.Column="0" x:Name="SKUComboBox" Style="{StaticResource ComboBoxStyle}" 
+                          ItemsSource="{Binding SKUCollection, RelativeSource={RelativeSource AncestorType=Window}}"
+                          DisplayMemberPath="SKUCode" SelectedValuePath="SKUID"
+                          SelectionChanged="ComboBox_SelectionChanged"        
+                          IsTextSearchEnabled="False"
+                          StaysOpenOnEdit="True"
+                          IsEditable="True"/>
+                <Button Grid.Column="1" x:Name ="MakeSKUButton" Content="+" Click="MakeSKUButton_Click"  Margin="10,0,0,0"/>
+        </Grid>
+
+        <Grid Grid.Row="8" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Quantity Per Bundle:" Foreground="White"/>
+                <TextBox x:Name="QuantityPerBundleBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Unit (e.g., pcs, kg, m):" Foreground="White"/>
+                <TextBox x:Name="UnitBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="9" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Quantity:" Foreground="White"/>
+                <TextBox x:Name="QuantityBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Minimum Quantity:" Foreground="White"/>
+                <TextBox x:Name="MinimumQuantityBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="10" Margin="0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <TextBlock Text="Purchase Cost:" Foreground="White"/>
+                <TextBox x:Name="PurchaseCostBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                <TextBlock Text="Sale Price:" Foreground="White"/>
+                <TextBox x:Name="SalePriceBox" Style="{StaticResource SearchBoxStyle}"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button x:Name="SaveButton" Content="Save" Width="80" Padding="10,5" Margin="10,0" Background="#007ACC" Foreground="White" BorderThickness="0" Click="SaveButton_Click"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="80" Padding="10,5" Background="#3E3E40" Foreground="White" BorderThickness="0" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

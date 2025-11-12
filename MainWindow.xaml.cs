@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,18 +21,171 @@ namespace WEGutters
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
+
         public MainWindow()
-        {
+        {            
             InitializeComponent();
+            InventoryList = new ObservableCollection<InventoryItemDisplay>();
+            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+            this.DataContext = this;
         }
+
+        // Source - https://stackoverflow.com/a
+        // Posted by Aleksey
+        // Retrieved 2025-11-09, License - CC BY-SA 3.0
+        public T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
+        {
+            T childElement = null;
+            var nChildCount = VisualTreeHelper.GetChildrenCount(element);
+            for (int i = 0; i < nChildCount; i++)
+            {
+                FrameworkElement child = VisualTreeHelper.GetChild(element, i) as FrameworkElement;
+
+                if (child == null)
+                    continue;
+
+                if (child is T && child.Name.Equals(sChildName))
+                {
+                    childElement = (T)child;
+                    break;
+                }
+
+                childElement = FindElementByName<T>(child, sChildName);
+
+                if (childElement != null)
+                    break;
+            }
+            return childElement;
+        }
+
         #region Stock Button Functionality
+
+        private void Stock_NewItem_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource. !!
+            AddEditItem addItemWindow = new AddEditItem(true);
+            addItemWindow.Owner = this; // Set this window as the owner
+            addItemWindow.Title = "Add New Item";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addItemWindow.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true)
+            {
+                // If they saved, add item to the data grid
+                InventoryList.Add(addItemWindow.ReturnItem.ToDisplay());
+                addInventoryItem(addItemWindow.ReturnItem);
+            }
+        }
+
+        #region addMethods 
+
+        private void addNewSKU(SKU sku)
+        {
+            // add SKU to database and set its ID because AddSKU in database returns the ID 
+            sku.SKUID = DatabaseAccess.AddSKU(sku.SKUCode);
+        }
+
+        private void addNewCategory(Category category)
+        {
+            // add Category to database and set its ID because AddCategory in database returns the ID 
+            category.CategoryID = DatabaseAccess.AddCategory(category.CategoryName);
+        }
+
+        private void addBaseItem(BaseItem baseItem)
+        {
+
+            // ensure SKU exists in database else add it
+            if (baseItem.SKUProperty.SKUID == 0 && !(DatabaseAccess.SKUExists(baseItem.SKUProperty.SKUCode)) )
+            {
+                addNewSKU(baseItem.SKUProperty);
+            }
+            // ensure Category exists in database else add it
+            if (baseItem.Category.CategoryID == 0 && !(DatabaseAccess.CategoryExists(baseItem.Category.CategoryName)) )
+            {
+                addNewCategory(baseItem.Category);
+            }
+
+            // add BaseItem to database and set its ID because AddBaseItem in database returns the ID 
+            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.ItemDetails, baseItem.Category,baseItem.Unit, baseItem.QuantityPerBundle);
+        }
+
+        private void addInventoryItem(InventoryItem inventoryItem)
+        {
+            // ensure BaseItem exists in database else add it
+            SKU sku = inventoryItem.Item.SKUProperty;
+            string itemName = inventoryItem.Item.ItemName;
+            string itemDetails = inventoryItem.Item.ItemDetails;
+            Category category = inventoryItem.Item.Category;
+            string unit = inventoryItem.Item.Unit;
+            int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
+
+            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)) )
+            {
+                addBaseItem(inventoryItem.Item);
+            }
+            // add InventoryItem to database and set its ID because AddInventoryItem in database returns the ID 
+            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
+        }
+
+        #endregion
+
+        private void Stock_EditItem_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+            {
+                AddEditItem addItemWindow = new AddEditItem(false, selectedItem.itemInstance);
+                addItemWindow.Owner = this; // Set this window as the owner
+                addItemWindow.Title = "Edit Item";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = addItemWindow.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true)
+                {
+                    // If they saved, add item to the data grid
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    InventoryList[selectedIndex] = addItemWindow.ReturnItem.ToDisplay();
+
+                    int newQuantity = addItemWindow.ReturnItem.Quantity;
+                    int newMinQuantity = addItemWindow.ReturnItem.MinQuantity;
+                    float newPurchaseCost = addItemWindow.ReturnItem.PurchaseCost;
+                    float newSalePrice = addItemWindow.ReturnItem.SalePrice;
+                    string newLastModified = addItemWindow.ReturnItem.LastModified;
+
+                    InventoryList[selectedIndex].Quantity = newQuantity;
+                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                }
+            }
+            MessageBox.Show("Edit Item... (functionality to be added)");
+        }
+        private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Remove Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+            {
+                InventoryList.Remove(selectedItem);
+                DatabaseAccess.DeleteInventoryItem(selectedItem.itemInstance);
+            }
+            MessageBox.Show("Delete Item... (functionality to be added)");
+        }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add logic here to:
-            // 1. Re-load the inventory data from your database.
-            // 2. Update the Stock DataGrid's ItemsSource.
+            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
 
             MessageBox.Show("Refresh Stock Data... (functionality to be added)");
         }
@@ -90,7 +244,7 @@ namespace WEGutters
 
             // ShowDialog() opens the window and pauses code here until the user closes it
             bool? result = addServiceWindow.ShowDialog();
-
+            
             // Check if the user clicked "Save"
             if (result == true)
             {
