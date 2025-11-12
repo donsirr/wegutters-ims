@@ -26,7 +26,10 @@
             <Setter Property="Padding" Value="5"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="SelectedIndex" Value="0"/>
+
         </Style>
+       
+
     </Window.Resources>
 
 
@@ -61,6 +64,9 @@
                           IsTextSearchEnabled="False"
                           StaysOpenOnEdit="True"
                           IsEditable="True"/>
+            
+            
+            
                 <Button Grid.Column="1" x:Name="MakeBaseItemButton"  Content="+" Click="MakeBaseItemButton_Click"  Margin="10,0,0,0"/>
         </Grid>
         

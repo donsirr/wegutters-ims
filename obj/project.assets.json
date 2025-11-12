@@ -1865,11 +1865,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Jullian\\Source\\Repos\\stenlandfork-wegutters-ims\\WEGutters.csproj",
+      "projectUniqueName": "C:\\Users\\Jullian\\Documents\\GitHub\\fork-wegutters-ims\\WEGutters.csproj",
       "projectName": "WEGutters",
-      "projectPath": "C:\\Users\\Jullian\\Source\\Repos\\stenlandfork-wegutters-ims\\WEGutters.csproj",
+      "projectPath": "C:\\Users\\Jullian\\Documents\\GitHub\\fork-wegutters-ims\\WEGutters.csproj",
       "packagesPath": "C:\\Users\\Jullian\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Jullian\\Source\\Repos\\stenlandfork-wegutters-ims\\obj\\",
+      "outputPath": "C:\\Users\\Jullian\\Documents\\GitHub\\fork-wegutters-ims\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

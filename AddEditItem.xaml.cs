@@ -188,10 +188,19 @@ namespace WEGutters
                 {
                     ItemNameComboBox.IsEditable = false;
                     ItemDetailsBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).ItemDetails;
-                    CategoryComboBox.SelectedItem = (ItemNameComboBox.SelectedItem as BaseItem).Category;
-                    SKUComboBox.SelectedItem = (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty;
-                    UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
-                    QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
+                MessageBox.Show((ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryName);
+
+                // gets the matching object by ID
+                var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
+                CategoryComboBox.SelectedItem = matchingCategory;
+                
+                // gets the matching object by ID
+                var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
+                SKUComboBox.SelectedItem = matchingSKU;
+                
+
+                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
+                QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
             }
         }
 
