@@ -71,18 +71,16 @@ namespace WEGutters
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(5);
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(15);
                     page.PageColor(QPdfColors.White);
                     page.DefaultTextStyle(x => x.FontSize(10).FontColor(QPdfColors.Black));
-
                     page.Header().Height(50).AlignMiddle().Text("Stock Report").FontSize(18).SemiBold();
                     page.Content().PaddingVertical(5).Element(BuildTable);
                     page.Footer().AlignCenter().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}");
                 });
             }
 
-            // contains details as shown in the grid aside from last modified.
             void BuildTable(IContainer container)
             {
                 container.Table(table =>
@@ -91,13 +89,13 @@ namespace WEGutters
                     {
                         columns.ConstantColumn(30); // Inventory ID
                         columns.RelativeColumn(2); // Item Name
-                        columns.RelativeColumn(3); // Item Details
+                        columns.RelativeColumn(2); // Item Details
                         columns.RelativeColumn(2); // Category
                         columns.RelativeColumn(2); // SKU
-                        columns.ConstantColumn(60); // Purchase
-                        //columns.ConstantColumn(60); // Value
-                        columns.ConstantColumn(60); // Sale
-                        //columns.ConstantColumn(60); // Projected
+                        columns.ConstantColumn(80); // Purchase
+                        columns.ConstantColumn(80); // Value
+                        columns.ConstantColumn(80); // Sale
+                        columns.ConstantColumn(80); // Projected
                         columns.ConstantColumn(40); // Qty
                         columns.ConstantColumn(40); // Min
                         columns.ConstantColumn(40); // Unit
@@ -111,9 +109,9 @@ namespace WEGutters
                         header.Cell().Element(CellHeader).Text("Category");
                         header.Cell().Element(CellHeader).Text("SKU");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Purchase");
-                        //header.Cell().Element(CellHeader).AlignCenter().Text("Value");
+                        header.Cell().Element(CellHeader).AlignCenter().Text("Value");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Sale");
-                        //header.Cell().Element(CellHeader).AlignCenter().Text("Projected");
+                        header.Cell().Element(CellHeader).AlignCenter().Text("Projected");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Qty");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Min");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Unit");
@@ -135,9 +133,9 @@ namespace WEGutters
                             Cell(table, item?.Category ?? "", bgColor);
                             Cell(table, item?.SKU ?? "", bgColor);
                             Cell(table, item?.PurchaseCost.ToString("$0.00") ?? "$0.00", bgColor, center: true);
-                            //Cell(table, item?.itemInstance.calcItemValue().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.itemInstance.calcItemValue().ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.SalePrice.ToString("$0.00") ?? "$0.00", bgColor, center: true);
-                            //Cell(table, item?.itemInstance.calcProjectedSale().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.itemInstance.calcProjectedSale().ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.Quantity.ToString() ?? "0", bgColor, center: true);
                             Cell(table, item?.MinCount.ToString() ?? "0", bgColor, center: true);
                             Cell(table, item?.Unit ?? "", bgColor, center: true);
@@ -148,9 +146,9 @@ namespace WEGutters
                     int atMin = _items.Count(i => i.Quantity == i.MinCount);
                     float invValue = _items.Sum(i => i.itemInstance.calcItemValue());
 
-                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Total Item Count: ${totalItems}");
-                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items At Minimum: ${atMin}");
-                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items Below Minimum: ${belowMin}");
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Total Item Count: {totalItems}");
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items At Minimum: {atMin}");
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items Below Minimum: {belowMin}");
                     table.Cell().ColumnSpan(6).Element(CellData).Element(e => e.Height(20)).Text($"Inventory Value (Sum of all values): ${invValue:0.00}");
                     table.Cell().ColumnSpan(6).Element(CellData).Element(e => e.Height(20)).Text($"Projected Sales (Sum of all projected sales): ${invValue:0.00}");
                 });
