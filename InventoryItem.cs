@@ -211,6 +211,11 @@ namespace WEGutters
             return salePrice * quantity;
         }
 
+        public float calcItemValue()
+        {
+            return purchaseCost * quantity;
+        }
+
         public InventoryItem GetInventoryItem()
         {
             return this;

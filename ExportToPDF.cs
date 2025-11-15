@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Win32;
-using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
+using static System.Net.Mime.MediaTypeNames;
 // Alias QuestPDF colors to avoid ambiguity with System.Windows.Media.Colors
 using QPdfColors = QuestPDF.Helpers.Colors;
-using QuestPDF.Helpers;
 
 namespace WEGutters
 {
@@ -71,7 +72,7 @@ namespace WEGutters
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
-                    page.Margin(20);
+                    page.Margin(5);
                     page.PageColor(QPdfColors.White);
                     page.DefaultTextStyle(x => x.FontSize(10).FontColor(QPdfColors.Black));
 
@@ -81,55 +82,115 @@ namespace WEGutters
                 });
             }
 
+            // contains details as shown in the grid aside from last modified.
             void BuildTable(IContainer container)
             {
                 container.Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.ConstantColumn(50); // Inventory ID
+                        columns.ConstantColumn(30); // Inventory ID
                         columns.RelativeColumn(2); // Item Name
                         columns.RelativeColumn(3); // Item Details
                         columns.RelativeColumn(2); // Category
                         columns.RelativeColumn(2); // SKU
                         columns.ConstantColumn(60); // Purchase
+                        //columns.ConstantColumn(60); // Value
                         columns.ConstantColumn(60); // Sale
+                        //columns.ConstantColumn(60); // Projected
                         columns.ConstantColumn(40); // Qty
+                        columns.ConstantColumn(40); // Min
                         columns.ConstantColumn(40); // Unit
                     });
 
                     table.Header(header =>
                     {
-                        header.Cell().Element(CellHeader).Text("Inv ID");
-                        header.Cell().Element(CellHeader).Text("Item Name");
+                        header.Cell().Element(CellHeader).Text("ID");
+                        header.Cell().Element(CellHeader).Text("Name");
                         header.Cell().Element(CellHeader).Text("Details");
                         header.Cell().Element(CellHeader).Text("Category");
                         header.Cell().Element(CellHeader).Text("SKU");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Purchase");
+                        //header.Cell().Element(CellHeader).AlignCenter().Text("Value");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Sale");
+                        //header.Cell().Element(CellHeader).AlignCenter().Text("Projected");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Qty");
+                        header.Cell().Element(CellHeader).AlignCenter().Text("Min");
                         header.Cell().Element(CellHeader).AlignCenter().Text("Unit");
                     });
 
                     foreach (var item in _items)
                     {
-                        table.Cell().Element(CellData).Text(item?.itemInstance.InventoryId.ToString() ?? "0");
-                        table.Cell().Element(CellData).Text(item?.ItemName ?? string.Empty);
-                        table.Cell().Element(CellData).Text(item?.ItemDetails ?? string.Empty);
-                        table.Cell().Element(CellData).Text(item?.Category ?? string.Empty);
-                        table.Cell().Element(CellData).Text(item?.SKU ?? string.Empty);
-                        table.Cell().Element(CellData).AlignCenter().Text(item?.PurchaseCost.ToString("0.00") ?? "0.00");
-                        table.Cell().Element(CellData).AlignCenter().Text(item?.SalePrice.ToString("0.00") ?? "0.00");
-                        table.Cell().Element(CellData).AlignCenter().Text(item?.Quantity.ToString() ?? "0");
-                        table.Cell().Element(CellData).AlignCenter().Text(item?.Unit ?? string.Empty);
+                        string bgColor = "#ffffff";
+                        if (item.Quantity == item.MinCount)
+                        {
+                            bgColor = "#ffecad";
+                        } else if (item.Quantity < item.MinCount)
+                        {
+                            bgColor = "#ff9696";
+                        }
+                            Cell(table, item?.itemInstance.InventoryId.ToString() ?? "0", bgColor);
+                            Cell(table, item?.ItemName ?? "", bgColor);
+                            Cell(table, item?.ItemDetails ?? "", bgColor);
+                            Cell(table, item?.Category ?? "", bgColor);
+                            Cell(table, item?.SKU ?? "", bgColor);
+                            Cell(table, item?.PurchaseCost.ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            //Cell(table, item?.itemInstance.calcItemValue().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.SalePrice.ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            //Cell(table, item?.itemInstance.calcProjectedSale().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.Quantity.ToString() ?? "0", bgColor, center: true);
+                            Cell(table, item?.MinCount.ToString() ?? "0", bgColor, center: true);
+                            Cell(table, item?.Unit ?? "", bgColor, center: true);
                     }
+
+                    int totalItems = _items.Count;
+                    int belowMin = _items.Count(i => i.Quantity < i.MinCount);
+                    int atMin = _items.Count(i => i.Quantity == i.MinCount);
+                    float invValue = _items.Sum(i => i.itemInstance.calcItemValue());
+
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Total Item Count: ${totalItems}");
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items At Minimum: ${atMin}");
+                    table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Items Below Minimum: ${belowMin}");
+                    table.Cell().ColumnSpan(6).Element(CellData).Element(e => e.Height(20)).Text($"Inventory Value (Sum of all values): ${invValue:0.00}");
+                    table.Cell().ColumnSpan(6).Element(CellData).Element(e => e.Height(20)).Text($"Projected Sales (Sum of all projected sales): ${invValue:0.00}");
                 });
+            }
+
+            void BuildSummary(IContainer container)
+            {
+                int totalItems = _items.Count;
+                int belowMin = _items.Count(i => i.Quantity < i.MinCount);
+                int atMin = _items.Count(i => i.Quantity == i.MinCount);
+                float invValue = _items.Sum(i => i.PurchaseCost);
+                container.Table(table =>
+                {
+                    container.Padding(10).BorderTop(1).BorderColor(Colors.Grey.Lighten4).Column(col =>
+                    {
+                        col.Item().Text("Summary").Bold().FontSize(14);
+                        col.Item().Text($"Total Inventory Value: {invValue:0.00}");
+                        col.Item().Text($"Items at Minimum: {atMin}");
+                        col.Item().Text($"Total Below Minimum: {belowMin}");
+                    });
+                    
+                });
+
+            }
+
+            void Cell(TableDescriptor table, string text, string bgColor = "#ffffff", bool center = false)
+            {
+                table.Cell().Element(e =>
+                {
+                    e = e.Background(bgColor);
+                    e = CellData(e);
+                    if (center)
+                        e = e.AlignCenter();
+                    return e;
+                }).Text(text);
             }
 
             IContainer CellHeader(IContainer container)
             {
                 return container.DefaultTextStyle(x => x.SemiBold())
-                    .Padding(5)
                     .Background(QPdfColors.Grey.Lighten4)
                     .BorderBottom(1)
                     .BorderColor(QPdfColors.Grey.Lighten2);
@@ -137,8 +198,9 @@ namespace WEGutters
 
             IContainer CellData(IContainer container)
             {
-                return container.Padding(5)
+                return container.Padding(1)
                     .BorderBottom(1)
+                    .BorderRight(1)
                     .BorderColor(QPdfColors.Grey.Lighten4);
             }
         }
