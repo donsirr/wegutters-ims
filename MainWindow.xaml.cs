@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,9 +21,27 @@ namespace WEGutters
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
+
+        private ObservableCollection<InventoryItemDisplay> _inventoryList;
+
+        public ObservableCollection<InventoryItemDisplay> InventoryList
+        {
+            get => _inventoryList;
+            set
+            {
+                _inventoryList = value;
+                OnPropertyChanged(nameof(InventoryList));
+            }
+        }
+
+        // notifies when property changes so InventoryList = ... works.
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public MainWindow()
         {            
@@ -166,7 +186,7 @@ namespace WEGutters
                     DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
-            MessageBox.Show("Edit Item... (functionality to be added)");
+
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
         {
@@ -179,15 +199,12 @@ namespace WEGutters
                 InventoryList.Remove(selectedItem);
                 DatabaseAccess.DeleteInventoryItem(selectedItem.itemInstance);
             }
-            MessageBox.Show("Delete Item... (functionality to be added)");
         }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
         {
             InventoryList = DatabaseAccess.GetInventoryItemDisplays();
-
-            MessageBox.Show("Refresh Stock Data... (functionality to be added)");
         }
 
         // This method will handle printing the DataGrid
@@ -247,7 +264,7 @@ namespace WEGutters
 
         #endregion
 
-        #region Services Button Functionality
+            #region Services Button Functionality
 
         private void Services_Refresh_Click(object sender, RoutedEventArgs e)
         {
@@ -349,5 +366,22 @@ namespace WEGutters
         }
 
         #endregion
+
+        private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            string searchText = textBox.Text;
+            if (e.Key == Key.Enter)
+            {
+                if (searchText.IsNullOrEmpty())
+                {
+                    InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+                    textBox.Text = "Search Stock";
+                    return;
+                }
+
+                InventoryList = DatabaseAccess.SearchInventory(searchText);
+            }
+        }
     }
 }

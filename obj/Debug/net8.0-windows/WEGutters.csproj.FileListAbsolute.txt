@@ -239,3 +239,4 @@ C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\re
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters.pdb
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters.genruntimeconfig.cache
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\ref\WEGutters.dll
+C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs

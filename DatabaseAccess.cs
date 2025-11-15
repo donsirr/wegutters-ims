@@ -597,9 +597,9 @@ namespace WEGutters
         } 
 
         #endregion
-        public static ObservableCollection<InventoryItem> SearchInventory(string search)
+        public static ObservableCollection<InventoryItemDisplay> SearchInventory(string search)
         {
-            var inventoryItemsCollection = new ObservableCollection<InventoryItem>();
+            var inventoryItemsDisplayCollection = new ObservableCollection<InventoryItemDisplay>();
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
 
@@ -631,9 +631,11 @@ namespace WEGutters
                                                     JOIN BaseItems b ON i.ItemID = b.ItemID
                                                     JOIN SKU s ON b.SKU_ID = s.SKU_ID
                                                     JOIN Category c ON b.CategoryID = c.CategoryID
-                                                    WHERE b.ItemName LIKE @Search OR s.SKUCode LIKE @Search OR c.CategoryName LIKE @Search;
+                                                    WHERE b.ItemName LIKE @Search OR s.SKU_Code LIKE @Search OR c.CategoryName LIKE @Search;
                                                     """, conn))
                 {
+                    cmd.Parameters.AddWithValue("@Search", search);
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -664,10 +666,13 @@ namespace WEGutters
                                 reader.GetString(6)  // CreatedDate
                             )
                             { InventoryId = reader.GetInt32(0) }; // InventoryID since it's not in the constructor
+
+                            inventoryItemsDisplayCollection.Add(inventoryItem.ToDisplay());
                         }
+
                     }
                 }
-                return inventoryItemsCollection;
+                return inventoryItemsDisplayCollection;
             }
         }
 

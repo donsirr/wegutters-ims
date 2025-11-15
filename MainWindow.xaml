@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="Western Edge Gutters - Inventory Management" Height="700" Width="1000"
+        Title="Western Edge Gutters - Inventory Management" Height="700" Width="1190"
         Background="#2D2D30" Icon="/app_icon.png">
-    
+
     <Window.Resources>
 
         <Style x:Key="NavigationRadioButtonStyle" TargetType="RadioButton">
@@ -223,7 +223,7 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         </Style>
 
-        
+
         <DataTemplate x:Key="EmptyBarTemplate">
             <Grid/>
         </DataTemplate>
@@ -308,7 +308,7 @@
                 </Grid>
             </Grid>
         </DataTemplate>
-        
+
         <!-- Services Page Top Bar -->
         <DataTemplate x:Key="ServicesTopBarTemplate">
             <WrapPanel>
@@ -328,8 +328,10 @@
         <DataTemplate x:Key="ServicesMainContentTemplate">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
-                
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
                 <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
                     <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
                         <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
@@ -338,13 +340,15 @@
                                 <TextBlock Text="Services" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ListBoxItem>
-                        </ListBox>
+                    </ListBox>
                 </Border>
 
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
-                    
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
                     <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -361,7 +365,7 @@
                             <TextBlock Grid.Column="4" Text="Services count: 0" Foreground="#CCCCCC" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0"/>
                         </Grid>
                     </Border>
-                    
+
                     <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="100" Foreground="#444444" HorizontalAlignment="Center"/>
                         <TextBlock Text="Selected group contains no services" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,0"/>
@@ -393,8 +397,15 @@
         <!-- Stock Page -->
         <DataTemplate x:Key="StockMainContentTemplate">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!--
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
                     <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
@@ -406,20 +417,28 @@
                         </ListBoxItem>
                         </ListBox>
                 </Border>
+                -->
 
-                <DataGrid x:Name="StockDataGrid" Grid.Column="1" ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
+                    <Grid>
+                        <TextBox x:Name="StockSearchBox" Text="Search Stock" Style="{StaticResource SearchBoxStyle}" Padding="5,5,30,5" KeyUp="StockSearchBox_KeyUp"/>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid x:Name="StockDataGrid" Grid.Row="1" ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="Auto"/>
-                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="3*"/>
+                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="2*"/>
                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto"/>
-                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="2*"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="*"/>
                         <DataGridTextColumn Header="Purchase Cost" Binding="{Binding PurchaseCost}" Width="Auto"/>
                         <DataGridTextColumn Header="Sale Price" Binding="{Binding SalePrice}" Width="Auto"/>
-                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto"/>
-                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="Auto"/>
                         <DataGridTextColumn Header="Qty per bundle" Binding="{Binding QtyPerBundle}" Width="Auto"/>
-                        <DataGridTextColumn Header="Minimum Count" Binding="{Binding MinCount}" Width="Auto"/>
-                        <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="2*"/>
+                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto"/>
+                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="Auto"/>
+                        <DataGridTextColumn Header="Min Count" Binding="{Binding MinCount}" Width="Auto"/>
+                        <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="Auto"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
@@ -432,7 +451,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="280"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -482,7 +501,7 @@
                         </ListBoxItem>
                     </ListBox>
                 </Grid>
-                
+
                 <Border Grid.Column="1" Background="#252526" Padding="10">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
@@ -518,7 +537,9 @@
         <DataTemplate x:Key="CustomersMainContentTemplate">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -595,7 +616,7 @@
                 <StackPanel>
                     <TextBlock Text="Set access level for predefined operations" Foreground="White" FontSize="16"/>
                     <TextBlock Text="Select access level for each action in order to set required user permissions." Foreground="#CCCCCC" Margin="0,5,0,0"/>
-                    
+
                     <Border Background="#007ACC" Padding="10" Margin="0,20,0,0">
                         <TextBlock Text="General" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                     </Border>
@@ -610,15 +631,18 @@
                             </ItemsControl.Items>
                         </ItemsControl>
                     </Border>
-                    
-                    </StackPanel>
+
+                </StackPanel>
             </ScrollViewer>
         </DataTemplate>
 
         <DataTemplate x:Key="UsersAndSecurityMainContentTemplate">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
                 <TabControl x:Name="InternalTabControl" Style="{StaticResource DarkTabControlStyle}" Margin="0,0,0,5">
                     <TabItem Header="Users" Style="{StaticResource DarkTabItemStyle}"/>
@@ -639,7 +663,7 @@
                         </ContentControl.Style>
                     </ContentControl>
                 </Border>
-                
+
                 <ContentControl Grid.Row="2" x:Name="MainContentSwitcher">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
@@ -657,11 +681,15 @@
         </DataTemplate>
 
     </Window.Resources>
-    
-    
+
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/> <ColumnDefinition Width="*"/>   </Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="446*"/>
+            <ColumnDefinition Width="441*"/>
+            <ColumnDefinition Width="103*"/>
+        </Grid.ColumnDefinitions>
 
         <Border Background="#252526" Grid.Column="0">
             <StackPanel>
@@ -675,7 +703,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbServices" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -684,7 +712,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbStock" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -693,7 +721,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbReporting" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -702,7 +730,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbCustomers" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -711,7 +739,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbUsersAndSecurity" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -725,9 +753,12 @@
         </Border>
 
         <!-- Content Control Top Bar -->
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Grid.ColumnSpan="3">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    <RowDefinition Height="Auto"/> </Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
             <Border Background="#2D2D30" Padding="5" MinHeight="68">
                 <ContentControl>
@@ -748,7 +779,7 @@
                                 <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
                                     <Setter Property="ContentTemplate" Value="{StaticResource StockTopBarTemplate}"/>
                                 </DataTrigger>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
@@ -777,7 +808,7 @@
                                 <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
                                     <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>
                                 </DataTrigger>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
@@ -789,7 +820,7 @@
                         <Style TargetType="ContentControl">
                             <Setter Property="ContentTemplate" Value="{StaticResource EmptyBarTemplate}"/>
                             <Style.Triggers>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
