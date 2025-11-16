@@ -412,8 +412,12 @@ namespace WEGutters
             MessageBox.Show("Sorting... (functionality to be added)");
         }
 
+
         #endregion
 
-       
+        private void rbStock_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

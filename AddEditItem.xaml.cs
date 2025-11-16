@@ -177,31 +177,43 @@ namespace WEGutters
         }
         private void ItemNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-                if (ItemNameComboBox.SelectedIndex == 0)
-                {
-                    ItemNameComboBox.IsEditable = true;
-                    ItemDetailsBox.Text = "";
-                    CategoryComboBox.SelectedIndex = 0;
-                    SKUComboBox.SelectedIndex = 0;
-                    UnitBox.Text = "";
-                    QuantityPerBundleBox.Text = "";
+            if (ItemNameComboBox.SelectedIndex == 0)
+            {
+                ItemNameComboBox.IsEditable = true;
+
+                CategoryComboBox.SelectedIndex = 0;
+                CategoryComboBox.IsEnabled = true;
+
+                SKUComboBox.SelectedIndex = 0;
+                SKUComboBox.IsEnabled = true;
+
+                QuantityPerBundleBox.Text = "";
+                QuantityPerBundleBox.IsEnabled = true;
+
+                UnitBox.Text = "";
+                UnitBox.IsEnabled = true;
             }
-                else
-                {
-                    ItemNameComboBox.IsEditable = false;
-                    // BaseItem no longer contains ItemDetails; clear it so user can enter inventory-specific details.
-                    ItemDetailsBox.Text = "";
+            else
+            {
+                ItemNameComboBox.IsEditable = false;
+                // BaseItem no longer contains ItemDetails; clear it so user can enter inventory-specific details.
+                ItemDetailsBox.Text = "";
 
                 // gets the matching object by ID
                 var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
                 CategoryComboBox.SelectedItem = matchingCategory;
-                
+                CategoryComboBox.IsEnabled = false;
+
                 // gets the matching object by ID
                 var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
                 SKUComboBox.SelectedItem = matchingSKU;
-               
-                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
+                SKUComboBox.IsEnabled = false;
+
                 QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
+                QuantityPerBundleBox.IsEnabled = false;
+
+                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
+                UnitBox.IsEnabled = false;
             }
         }
 

@@ -95,7 +95,7 @@
 
   <ItemGroup>
     <None Update="WesternEdgeDB.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
