@@ -154,6 +154,7 @@ namespace WEGutters
             this.DialogResult = true; // This tells the MainWindow that we saved.
             this.Close();
         }
+
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             // Just close the window.
@@ -196,8 +197,7 @@ namespace WEGutters
                 // gets the matching object by ID
                 var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
                 SKUComboBox.SelectedItem = matchingSKU;
-                
-
+               
                 UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
                 QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
             }

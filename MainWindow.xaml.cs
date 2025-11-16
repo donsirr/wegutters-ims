@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -183,6 +184,19 @@ namespace WEGutters
                     string newLastModified = addItemWindow.ReturnItem.LastModified;
 
                     InventoryList[selectedIndex].Quantity = newQuantity;
+                    
+                    SKU sku = addItemWindow.ReturnItem.Item.SKUProperty;
+                    string itemName = addItemWindow.ReturnItem.Item.ItemName;
+                    string itemDetails = addItemWindow.ReturnItem.Item.ItemDetails;
+                    Category category = addItemWindow.ReturnItem.Item.Category;
+                    string unit = addItemWindow.ReturnItem.Item.Unit;
+                    int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
+
+                    if (addItemWindow.ReturnItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)))
+                    {
+                        addBaseItem(addItemWindow.ReturnItem.Item);
+                    }
+
                     DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
@@ -261,7 +275,22 @@ namespace WEGutters
 
             MessageBox.Show("Open Inventory Count Report... (functionality to be added)");
         }
+        private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
+                {
+                    var textBox = sender as TextBox;
+                    string searchText = textBox.Text;
+                    if (e.Key == Key.Enter)
+                    {
+                        if (searchText.IsNullOrEmpty())
+                        {
+                            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+                            textBox.Text = "Search Stock";
+                            return;
+                        }
 
+                        InventoryList = DatabaseAccess.SearchInventory(searchText);
+                    }
+                }
         #endregion
 
             #region Services Button Functionality
@@ -367,21 +396,6 @@ namespace WEGutters
 
         #endregion
 
-        private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
-        {
-            var textBox = sender as TextBox;
-            string searchText = textBox.Text;
-            if (e.Key == Key.Enter)
-            {
-                if (searchText.IsNullOrEmpty())
-                {
-                    InventoryList = DatabaseAccess.GetInventoryItemDisplays();
-                    textBox.Text = "Search Stock";
-                    return;
-                }
-
-                InventoryList = DatabaseAccess.SearchInventory(searchText);
-            }
-        }
+       
     }
 }
