@@ -88,7 +88,7 @@ namespace WEGutters
                 }
                 SKUComboBox.SelectedItem = skuMatch ?? SKUCollection.FirstOrDefault();
 
-                ItemDetailsBox.Text = ReturnItem.Item.ItemDetails;
+                ItemDetailsBox.Text = ReturnItem.ItemDetails;
                 UnitBox.Text = ReturnItem.Item.Unit;
                 QuantityPerBundleBox.Text = ReturnItem.Item.QuantityPerBundle.ToString();
 
@@ -112,7 +112,7 @@ namespace WEGutters
         private void updateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
         {
             BaseItemCollection = BaseItems;
-            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, null, 0)));
+            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, 0)));
         }
         private void MakeBaseItemButton_Click(object sender, RoutedEventArgs e)
         {
@@ -144,6 +144,7 @@ namespace WEGutters
             }
             InventoryItem inventoryItem = new InventoryItem(
                 getSelectedBaseItem(),
+                ItemDetailsBox.Text,
                 Convert.ToInt32(QuantityBox.Text),
                 Convert.ToInt32(MinimumQuantityBox.Text),
                 float.Parse(PurchaseCostBox.Text),
@@ -154,6 +155,7 @@ namespace WEGutters
             this.DialogResult = true; // This tells the MainWindow that we saved.
             this.Close();
         }
+
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             // Just close the window.
@@ -187,11 +189,19 @@ namespace WEGutters
                 else
                 {
                     ItemNameComboBox.IsEditable = false;
-                    ItemDetailsBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).ItemDetails;
-                    CategoryComboBox.SelectedItem = (ItemNameComboBox.SelectedItem as BaseItem).Category;
-                    SKUComboBox.SelectedItem = (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty;
-                    UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
-                    QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
+                    // BaseItem no longer contains ItemDetails; clear it so user can enter inventory-specific details.
+                    ItemDetailsBox.Text = "";
+
+                // gets the matching object by ID
+                var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
+                CategoryComboBox.SelectedItem = matchingCategory;
+                
+                // gets the matching object by ID
+                var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
+                SKUComboBox.SelectedItem = matchingSKU;
+               
+                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
+                QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
             }
         }
 
@@ -233,13 +243,12 @@ namespace WEGutters
         {
             if (ItemNameComboBox.SelectedIndex == 0)
             {
-                // create new BaseItem
+                // create new BaseItem (no ItemDetails here)
                 SKU sku = getSelectedSKU();
                 Category category = getSelectedCategory();
                 BaseItem baseItem = new BaseItem(
                     sku,
                     ItemNameComboBox.Text,
-                    ItemDetailsBox.Text,
                     category,
                     UnitBox.Text,
                     Convert.ToInt32(QuantityPerBundleBox.Text));

@@ -16,7 +16,9 @@ namespace WEGutters
         public string Category { get; set; } = string.Empty;
         public string SKU { get; set; } = string.Empty;
         public float PurchaseCost { get; set; }
+        public float ItemValue { get; set; }
         public float SalePrice { get; set; }
+        public float ProjectedSale { get; set; }
         public int Quantity { get; set; }
         public int QtyPerBundle { get; set; }
         public string Unit { get; set; } = string.Empty;
@@ -28,6 +30,7 @@ namespace WEGutters
     {
         private int inventoryID;
         private BaseItem item;
+        private string itemDetails;
         private int quantity;
         private int minQuantity;
         private float purchaseCost;
@@ -35,9 +38,11 @@ namespace WEGutters
         private string lastModified;
         private string createdDate;
 
-        public InventoryItem(BaseItem item, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
+        // Note: itemDetails moved to InventoryItem
+        public InventoryItem(BaseItem item, string itemDetails, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
         {
-            this.item = item;
+            this.item = item ?? throw new ArgumentException("Item cannot be null");
+            this.itemDetails = itemDetails ?? string.Empty;
             this.quantity = quantity;
             this.minQuantity = minQuantity;
             this.purchaseCost = purchaseCost;
@@ -55,11 +60,13 @@ namespace WEGutters
             return new InventoryItemDisplay
             {
                 ItemName = item.ItemName ?? string.Empty,
-                ItemDetails = item.ItemDetails ?? string.Empty,
+                ItemDetails = this.itemDetails ?? string.Empty,
                 Category = item.Category?.CategoryName ?? string.Empty,
                 SKU = item.SKUProperty?.SKUCode ?? string.Empty,
                 PurchaseCost = this.PurchaseCost,
+                ItemValue = this.calcItemValue(),
                 SalePrice = this.SalePrice,
+                ProjectedSale = this.calcProjectedSale(),
                 Quantity = this.Quantity,
                 QtyPerBundle = item.QuantityPerBundle,
                 Unit = item.Unit ?? string.Empty,
@@ -85,6 +92,7 @@ namespace WEGutters
                 }
             }
         }
+
         public BaseItem Item
         {
             get { return item; }
@@ -100,6 +108,7 @@ namespace WEGutters
                 }
             }
         }
+
         public int ItemID
         {
             get { return item.ItemID; }
@@ -119,6 +128,7 @@ namespace WEGutters
                 }
             }
         }
+
         public string CreatedDate
         {
             get { return createdDate; }
@@ -195,9 +205,21 @@ namespace WEGutters
             }
         }
 
-        public void editInventoryItem(BaseItem newItem, string newLastModified, int newQuantity, int newMinQuantity, float purchaseCost, float salePrice)
+        // New: ItemDetails property on InventoryItem
+        public string ItemDetails
+        {
+            get { return itemDetails; }
+            set
+            {
+                // Allow empty details; validate if you need non-empty
+                itemDetails = value ?? string.Empty;
+            }
+        }
+
+        public void editInventoryItem(BaseItem newItem, string newItemDetails, string newLastModified, int newQuantity, int newMinQuantity, float purchaseCost, float salePrice)
         {
             Item = newItem;
+            ItemDetails = newItemDetails;
             LastModified = newLastModified;
             Quantity = newQuantity;
             MinQuantity = newMinQuantity;
@@ -209,6 +231,11 @@ namespace WEGutters
         public float calcProjectedSale()
         {
             return salePrice * quantity;
+        }
+
+        public float calcItemValue()
+        {
+            return purchaseCost * quantity;
         }
 
         public InventoryItem GetInventoryItem()

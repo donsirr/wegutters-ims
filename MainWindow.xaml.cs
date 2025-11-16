@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,9 +22,27 @@ namespace WEGutters
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
+
+        private ObservableCollection<InventoryItemDisplay> _inventoryList;
+
+        public ObservableCollection<InventoryItemDisplay> InventoryList
+        {
+            get => _inventoryList;
+            set
+            {
+                _inventoryList = value;
+                OnPropertyChanged(nameof(InventoryList));
+            }
+        }
+
+        // notifies when property changes so InventoryList = ... works.
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public MainWindow()
         {            
@@ -111,7 +132,7 @@ namespace WEGutters
             }
 
             // add BaseItem to database and set its ID because AddBaseItem in database returns the ID 
-            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.ItemDetails, baseItem.Category,baseItem.Unit, baseItem.QuantityPerBundle);
+            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.Category, baseItem.Unit, baseItem.QuantityPerBundle);
         }
 
         private void addInventoryItem(InventoryItem inventoryItem)
@@ -119,17 +140,17 @@ namespace WEGutters
             // ensure BaseItem exists in database else add it
             SKU sku = inventoryItem.Item.SKUProperty;
             string itemName = inventoryItem.Item.ItemName;
-            string itemDetails = inventoryItem.Item.ItemDetails;
+            string itemDetails = inventoryItem.ItemDetails; // moved from BaseItem to InventoryItem
             Category category = inventoryItem.Item.Category;
             string unit = inventoryItem.Item.Unit;
             int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
 
-            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)) )
+            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)) )
             {
                 addBaseItem(inventoryItem.Item);
             }
             // add InventoryItem to database and set its ID because AddInventoryItem in database returns the ID 
-            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
+            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.ItemDetails, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
         }
 
         #endregion
@@ -163,10 +184,24 @@ namespace WEGutters
                     string newLastModified = addItemWindow.ReturnItem.LastModified;
 
                     InventoryList[selectedIndex].Quantity = newQuantity;
-                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    
+                    SKU sku = addItemWindow.ReturnItem.Item.SKUProperty;
+                    string itemName = addItemWindow.ReturnItem.Item.ItemName;
+                    string itemDetails = addItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
+                    Category category = addItemWindow.ReturnItem.Item.Category;
+                    string unit = addItemWindow.ReturnItem.Item.Unit;
+                    int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
+
+                    if (addItemWindow.ReturnItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)))
+                    {
+                        addBaseItem(addItemWindow.ReturnItem.Item);
+                    }
+
+                    // Persist inventory changes, including itemDetails which is now on Inventory row
+                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
-            MessageBox.Show("Edit Item... (functionality to be added)");
+
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
         {
@@ -179,15 +214,12 @@ namespace WEGutters
                 InventoryList.Remove(selectedItem);
                 DatabaseAccess.DeleteInventoryItem(selectedItem.itemInstance);
             }
-            MessageBox.Show("Delete Item... (functionality to be added)");
         }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
         {
             InventoryList = DatabaseAccess.GetInventoryItemDisplays();
-
-            MessageBox.Show("Refresh Stock Data... (functionality to be added)");
         }
 
         // This method will handle printing the DataGrid
@@ -202,19 +234,55 @@ namespace WEGutters
         // This method will save the grid as a PDF
         private void Stock_SaveAsPdf_Click(object sender, RoutedEventArgs e)
         {
-            // PDF generation requires a third-party library (a "NuGet package")
-            // such as "PdfSharp" or "iTextSharp".
+            try
+            {
+                // Call the ExportToPDF to generate PDF
+                bool exported = ExportToPDF.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Save as PDF... (requires PDF library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // ExportWithSaveDialog already wrote file; optionally inform user
+                    MessageBox.Show("PDF exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export PDF:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will save the grid as an Excel file
         private void Stock_Excel_Click(object sender, RoutedEventArgs e)
         {
-            // Excel generation requires a third-party library (a "NuGet package")
-            // such as "EPPlus".
+            try
+            {
+                bool exported = ExportToExcel.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Export to Excel... (requires Excel library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Excel exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export Excel:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will open the specific "Inventory Count Report"
@@ -225,10 +293,25 @@ namespace WEGutters
 
             MessageBox.Show("Open Inventory Count Report... (functionality to be added)");
         }
+        private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
+                {
+                    var textBox = sender as TextBox;
+                    string searchText = textBox.Text;
+                    if (e.Key == Key.Enter)
+                    {
+                        if (searchText.IsNullOrEmpty())
+                        {
+                            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+                            textBox.Text = "Search Stock";
+                            return;
+                        }
 
+                        InventoryList = DatabaseAccess.SearchInventory(searchText);
+                    }
+                }
         #endregion
 
-        #region Services Button Functionality
+            #region Services Button Functionality
 
         private void Services_Refresh_Click(object sender, RoutedEventArgs e)
         {
@@ -330,5 +413,7 @@ namespace WEGutters
         }
 
         #endregion
+
+       
     }
 }
