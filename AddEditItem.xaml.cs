@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Globalization;
 
 namespace WEGutters
 {
@@ -132,6 +133,13 @@ namespace WEGutters
         }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            // Validate inputs before saving
+            if (!ValidateInputs(out string validationError))
+            {
+                MessageBox.Show(validationError, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (isNew)
             {
                 //set date to now
@@ -147,8 +155,8 @@ namespace WEGutters
                 ItemDetailsBox.Text,
                 Convert.ToInt32(QuantityBox.Text),
                 Convert.ToInt32(MinimumQuantityBox.Text),
-                float.Parse(PurchaseCostBox.Text),
-                float.Parse(SalePriceBox.Text),
+                float.Parse(PurchaseCostBox.Text, CultureInfo.InvariantCulture),
+                float.Parse(SalePriceBox.Text, CultureInfo.InvariantCulture),
                 DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
                 createdDate);
             ReturnItem = inventoryItem;
@@ -258,6 +266,131 @@ namespace WEGutters
             {
                 return ItemNameComboBox.SelectedItem as BaseItem;
             }
+        }
+
+        //Validation
+        private bool ValidateInputs(out string validationError)
+        {
+            var errors = new StringBuilder();
+
+            // Item name
+            string itemName;
+            if (ItemNameComboBox.SelectedIndex == 0)
+            {
+                itemName = (ItemNameComboBox.Text ?? string.Empty).Trim();
+                ItemNameComboBox.Text = itemName; // normalize
+            }
+            else
+            {
+                itemName = (ItemNameComboBox.SelectedItem as BaseItem)?.ItemName?.Trim() ?? string.Empty;
+            }
+            if (string.IsNullOrEmpty(itemName))
+            {
+                errors.AppendLine("- Item Name cannot be blank.");
+            }
+            else if (string.Equals(itemName, "Add New Item", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.AppendLine("- Item Name cannot be \"Add New Item\".");
+            }
+
+            // Item details
+            var itemDetails = (ItemDetailsBox.Text ?? string.Empty).Trim();
+            ItemDetailsBox.Text = itemDetails;
+            if (string.IsNullOrEmpty(itemDetails))
+            {
+                errors.AppendLine("- Item Details cannot be blank.");
+            }
+
+            // Category
+            string categoryName;
+            if (CategoryComboBox.SelectedIndex == 0)
+            {
+                categoryName = (CategoryComboBox.Text ?? string.Empty).Trim();
+                CategoryComboBox.Text = categoryName;
+            }
+            else
+            {
+                categoryName = (CategoryComboBox.SelectedItem as Category)?.CategoryName?.Trim() ?? string.Empty;
+            }
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                errors.AppendLine("- Category cannot be blank.");
+            }
+            else if (string.Equals(categoryName, "Add New Category", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.AppendLine("- Category cannot be \"Add New Category\".");
+            }
+
+            // SKU
+            string skuText;
+            if (SKUComboBox.SelectedIndex == 0)
+            {
+                skuText = (SKUComboBox.Text ?? string.Empty).Trim();
+                SKUComboBox.Text = skuText;
+            }
+            else
+            {
+                skuText = (SKUComboBox.SelectedItem as SKU)?.SKUCode?.Trim() ?? string.Empty;
+            }
+            if (string.IsNullOrEmpty(skuText))
+            {
+                errors.AppendLine("- SKU cannot be blank.");
+            }
+            else if (string.Equals(skuText, "Add New SKU", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.AppendLine("- SKU cannot be \"Add New SKU\".");
+            }
+
+            // Quantity Per Bundle
+            var qtyPerBundleText = (QuantityPerBundleBox.Text ?? string.Empty).Trim();
+            QuantityPerBundleBox.Text = qtyPerBundleText;
+            if (!int.TryParse(qtyPerBundleText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int qtyPerBundle) || qtyPerBundle <= 0)
+            {
+                errors.AppendLine("- Qty Per Bundle cannot be 0 or less than 0.");
+            }
+
+            // Units
+            var unitText = (UnitBox.Text ?? string.Empty).Trim();
+            UnitBox.Text = unitText;
+            if (string.IsNullOrEmpty(unitText))
+            {
+                errors.AppendLine("- Units cannot be blank.");
+            }
+
+            // Quantity
+            var quantityText = (QuantityBox.Text ?? string.Empty).Trim();
+            QuantityBox.Text = quantityText;
+            if (!int.TryParse(quantityText, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+            {
+                errors.AppendLine("- Quantity must be an number and cannot be blank.");
+            }
+
+            // Minimum Quantity
+            var minQuantityText = (MinimumQuantityBox.Text ?? string.Empty).Trim();
+            MinimumQuantityBox.Text = minQuantityText;
+            if (!int.TryParse(minQuantityText, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+            {
+                errors.AppendLine("- Minimum Quantity must be an number and cannot be blank.");
+            }
+
+            // Purchase cost
+            var purchaseCostText = (PurchaseCostBox.Text ?? string.Empty).Trim();
+            PurchaseCostBox.Text = purchaseCostText;
+            if (!float.TryParse(purchaseCostText, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out _))
+            {
+                errors.AppendLine("- Purchase Cost must be a number.");
+            }
+
+            // Sale price
+            var salePriceText = (SalePriceBox.Text ?? string.Empty).Trim();
+            SalePriceBox.Text = salePriceText;
+            if (!float.TryParse(salePriceText, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out _))
+            {
+                errors.AppendLine("- Sale Price must be a number.");
+            }
+
+            validationError = errors.ToString().TrimEnd();
+            return validationError.Length == 0;
         }
     }
 }
