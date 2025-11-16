@@ -88,7 +88,7 @@ namespace WEGutters
                 }
                 SKUComboBox.SelectedItem = skuMatch ?? SKUCollection.FirstOrDefault();
 
-                ItemDetailsBox.Text = ReturnItem.Item.ItemDetails;
+                ItemDetailsBox.Text = ReturnItem.ItemDetails;
                 UnitBox.Text = ReturnItem.Item.Unit;
                 QuantityPerBundleBox.Text = ReturnItem.Item.QuantityPerBundle.ToString();
 
@@ -112,7 +112,7 @@ namespace WEGutters
         private void updateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
         {
             BaseItemCollection = BaseItems;
-            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, null, 0)));
+            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, 0)));
         }
         private void MakeBaseItemButton_Click(object sender, RoutedEventArgs e)
         {
@@ -144,6 +144,7 @@ namespace WEGutters
             }
             InventoryItem inventoryItem = new InventoryItem(
                 getSelectedBaseItem(),
+                ItemDetailsBox.Text,
                 Convert.ToInt32(QuantityBox.Text),
                 Convert.ToInt32(MinimumQuantityBox.Text),
                 float.Parse(PurchaseCostBox.Text),
@@ -188,7 +189,8 @@ namespace WEGutters
                 else
                 {
                     ItemNameComboBox.IsEditable = false;
-                    ItemDetailsBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).ItemDetails;
+                    // BaseItem no longer contains ItemDetails; clear it so user can enter inventory-specific details.
+                    ItemDetailsBox.Text = "";
 
                 // gets the matching object by ID
                 var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
@@ -241,13 +243,12 @@ namespace WEGutters
         {
             if (ItemNameComboBox.SelectedIndex == 0)
             {
-                // create new BaseItem
+                // create new BaseItem (no ItemDetails here)
                 SKU sku = getSelectedSKU();
                 Category category = getSelectedCategory();
                 BaseItem baseItem = new BaseItem(
                     sku,
                     ItemNameComboBox.Text,
-                    ItemDetailsBox.Text,
                     category,
                     UnitBox.Text,
                     Convert.ToInt32(QuantityPerBundleBox.Text));

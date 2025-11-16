@@ -133,9 +133,9 @@ namespace WEGutters
                             Cell(table, item?.Category ?? "", bgColor);
                             Cell(table, item?.SKU ?? "", bgColor);
                             Cell(table, item?.PurchaseCost.ToString("$0.00") ?? "$0.00", bgColor, center: true);
-                            Cell(table, item?.itemInstance.calcItemValue().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.ItemValue.ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.SalePrice.ToString("$0.00") ?? "$0.00", bgColor, center: true);
-                            Cell(table, item?.itemInstance.calcProjectedSale().ToString("$0.00") ?? "$0.00", bgColor, center: true);
+                            Cell(table, item?.ProjectedSale.ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.Quantity.ToString() ?? "0", bgColor, center: true);
                             Cell(table, item?.MinCount.ToString() ?? "0", bgColor, center: true);
                             Cell(table, item?.Unit ?? "", bgColor, center: true);

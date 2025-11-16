@@ -132,7 +132,7 @@ namespace WEGutters
             }
 
             // add BaseItem to database and set its ID because AddBaseItem in database returns the ID 
-            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.ItemDetails, baseItem.Category,baseItem.Unit, baseItem.QuantityPerBundle);
+            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.Category, baseItem.Unit, baseItem.QuantityPerBundle);
         }
 
         private void addInventoryItem(InventoryItem inventoryItem)
@@ -140,17 +140,17 @@ namespace WEGutters
             // ensure BaseItem exists in database else add it
             SKU sku = inventoryItem.Item.SKUProperty;
             string itemName = inventoryItem.Item.ItemName;
-            string itemDetails = inventoryItem.Item.ItemDetails;
+            string itemDetails = inventoryItem.ItemDetails; // moved from BaseItem to InventoryItem
             Category category = inventoryItem.Item.Category;
             string unit = inventoryItem.Item.Unit;
             int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
 
-            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)) )
+            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)) )
             {
                 addBaseItem(inventoryItem.Item);
             }
             // add InventoryItem to database and set its ID because AddInventoryItem in database returns the ID 
-            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
+            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.ItemDetails, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
         }
 
         #endregion
@@ -187,17 +187,18 @@ namespace WEGutters
                     
                     SKU sku = addItemWindow.ReturnItem.Item.SKUProperty;
                     string itemName = addItemWindow.ReturnItem.Item.ItemName;
-                    string itemDetails = addItemWindow.ReturnItem.Item.ItemDetails;
+                    string itemDetails = addItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
                     Category category = addItemWindow.ReturnItem.Item.Category;
                     string unit = addItemWindow.ReturnItem.Item.Unit;
                     int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
 
-                    if (addItemWindow.ReturnItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)))
+                    if (addItemWindow.ReturnItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)))
                     {
                         addBaseItem(addItemWindow.ReturnItem.Item);
                     }
 
-                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    // Persist inventory changes, including itemDetails which is now on Inventory row
+                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
 
@@ -261,10 +262,27 @@ namespace WEGutters
         // This method will save the grid as an Excel file
         private void Stock_Excel_Click(object sender, RoutedEventArgs e)
         {
-            // Excel generation requires a third-party library (a "NuGet package")
-            // such as "EPPlus".
+            try
+            {
+                bool exported = ExportToExcel.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Export to Excel... (requires Excel library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Excel exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export Excel:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will open the specific "Inventory Count Report"

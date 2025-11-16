@@ -12,19 +12,17 @@ namespace WEGutters
         private SKU SKU; // skuID
         private string SKU_Code;
         private string itemName;
-        private string itemDetails;
         private Category category; //catID
         private string categoryName;
         private string unit;
         private int quantityPerBundle;
 
 
-        public BaseItem(SKU SKU, string itemName, string itemDetails, Category category, string unit, int quantityPerBundle)
+        public BaseItem(SKU SKU, string itemName, Category category, string unit, int quantityPerBundle)
         {
             //this.itemID = itemID;
             this.SKU = SKU;
             this.itemName = itemName;
-            this.itemDetails = itemDetails;
             this.category = category;
             this.unit = unit;
             this.quantityPerBundle = quantityPerBundle;
@@ -75,21 +73,9 @@ namespace WEGutters
                 }
             }
         }
-        public string ItemDetails
-        {
-            get { return itemDetails; }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    itemDetails = value;
-                }
-                else
-                {
-                    throw new ArgumentException("Item Details cannot be empty");
-                }
-            }
-        }
+
+        // ItemDetails removed from BaseItem - moved to InventoryItem
+
         public Category Category
         {
             get { return category; }
@@ -141,11 +127,10 @@ namespace WEGutters
             return this;
         }
 
-        public void editItem(SKU SKU, string itemName, string itemDetails, Category category, string unit)
+        public void editItem(SKU SKU, string itemName, Category category, string unit)
         {
             SKUProperty = SKU;
             ItemName = itemName;
-            ItemDetails = itemDetails;
             Category = category;
             Unit = unit;
         }

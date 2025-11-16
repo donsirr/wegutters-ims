@@ -238,31 +238,27 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Text="Item Name:" Foreground="White" Margin="0,5"/>
 
         <!-- Item -->
-     
 
-            <ComboBox Template="{DynamicResource ComboBoxTemplate}" Grid.Row="1" Margin="0,5" x:Name="ItemNameComboBox" Style="{StaticResource ComboBoxStyle}"  
+
+        <ComboBox Template="{DynamicResource ComboBoxTemplate}" Grid.Row="1" Margin="0,5" x:Name="ItemNameComboBox" Style="{StaticResource ComboBoxStyle}"  
                           ItemsSource="{Binding BaseItemCollection}" 
                           DisplayMemberPath="ItemName" SelectedValuePath="ItemID"
                           SelectionChanged="ItemNameComboBox_SelectionChanged"        
                           IsTextSearchEnabled="False"
                           StaysOpenOnEdit="True"
                           IsEditable="True"/>
-   
-        
-        <TextBlock Grid.Row="2" Text="Item Details:" Foreground="White" Margin="0,5"/>
-        <TextBox Grid.Row="3" x:Name="ItemDetailsBox" Style="{StaticResource SearchBoxStyle}"/>
-        
-        <!-- Category -->
-        <TextBlock Grid.Row="4" Text="Category:" Foreground="White" Margin="0,5"/>
 
-            <ComboBox Grid.Row="5" x:Name="CategoryComboBox" Style="{DynamicResource ComboBoxStyle}" 
+        <!-- Category -->
+        <TextBlock Grid.Row="2" Text="Category:" Foreground="White" Margin="0,5"/>
+
+            <ComboBox Grid.Row="3" x:Name="CategoryComboBox" Style="{DynamicResource ComboBoxStyle}" 
                           ItemsSource="{Binding CategoryCollection, RelativeSource={RelativeSource AncestorType=Window}}"
                           DisplayMemberPath="CategoryName" SelectedValuePath="CategoryID" 
                           SelectionChanged="ComboBox_SelectionChanged"        
@@ -272,9 +268,9 @@
 
         
         <!-- SKU Section -->
-        <TextBlock Grid.Row="6" Text="SKU:" Foreground="White" Margin="0,5"/>
+        <TextBlock Grid.Row="4" Text="SKU:" Foreground="White" Margin="0,5"/>
 
-        <ComboBox Grid.Row="7" Margin="0,5" x:Name="SKUComboBox" Style="{StaticResource ComboBoxStyle}" 
+        <ComboBox Grid.Row="5" Margin="0,5" x:Name="SKUComboBox" Style="{StaticResource ComboBoxStyle}" 
                           ItemsSource="{Binding SKUCollection, RelativeSource={RelativeSource AncestorType=Window}}"
                           DisplayMemberPath="SKUCode" SelectedValuePath="SKUID"
                           SelectionChanged="ComboBox_SelectionChanged"        
@@ -283,7 +279,7 @@
                           />
     
 
-        <Grid Grid.Row="8" Margin="0,5">
+        <Grid Grid.Row="6" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -298,7 +294,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="9" Margin="0,5">
+        <Grid Grid.Row="7" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -313,7 +309,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="10" Margin="0,5">
+        <Grid Grid.Row="8" Margin="0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -327,6 +323,9 @@
                 <TextBox x:Name="SalePriceBox" Style="{StaticResource SearchBoxStyle}"/>
             </StackPanel>
         </Grid>
+
+        <TextBlock Grid.Row="9" Text="Item Details:" Foreground="White" Margin="0,5"/>
+        <TextBox Grid.Row="10" x:Name="ItemDetailsBox" Style="{StaticResource SearchBoxStyle}"/>
 
         <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
             <Button x:Name="SaveButton" Content="Save" Width="80" Padding="10,5" Margin="10,0" Background="#007ACC" Foreground="White" BorderThickness="0" Click="SaveButton_Click"/>

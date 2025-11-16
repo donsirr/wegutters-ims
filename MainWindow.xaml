@@ -432,8 +432,10 @@
                         <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="2*"/>
                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto"/>
                         <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="*"/>
-                        <DataGridTextColumn Header="Purchase Cost" Binding="{Binding PurchaseCost}" Width="Auto"/>
-                        <DataGridTextColumn Header="Sale Price" Binding="{Binding SalePrice}" Width="Auto"/>
+                        <DataGridTextColumn Header="Purchase Cost ($)" Binding="{Binding PurchaseCost}" Width="Auto"/>
+                        <DataGridTextColumn Header="Item Value ($)" Binding="{Binding ItemValue}" Width="Auto"/>
+                        <DataGridTextColumn Header="Sale Price ($)" Binding="{Binding SalePrice}" Width="Auto"/>
+                        <DataGridTextColumn Header="Projected Sale ($)" Binding="{Binding ProjectedSale}" Width="Auto"/>
                         <DataGridTextColumn Header="Qty per bundle" Binding="{Binding QtyPerBundle}" Width="Auto"/>
                         <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto"/>
                         <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="Auto"/>
