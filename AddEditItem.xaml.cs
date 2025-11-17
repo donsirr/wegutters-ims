@@ -1,6 +1,8 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +14,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Globalization;
 
 namespace WEGutters
 {
@@ -115,22 +116,7 @@ namespace WEGutters
             BaseItemCollection = BaseItems;
             BaseItemCollection.Insert(0,(new BaseItem(new SKU("null"), "Add New Item", new Category("null"), "null", 1)));
         }
-        private void MakeBaseItemButton_Click(object sender, RoutedEventArgs e)
-        {
-            // open DialogueBox and set Combobox and add to BaseItem database/collection
-            //updateItemNameComboBox();
-        }
 
-        private void MakeSKUButton_Click(object sender, RoutedEventArgs e)
-        {
-            // open DialogueBox and set Combobox and add to SKU database/collection
-            //updateSKUComboBox();
-        }
-
-        private void MakeCategoryButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             // Validate inputs before saving
@@ -142,26 +128,51 @@ namespace WEGutters
 
             if (isNew)
             {
-                //set date to now
+                // set created date to now for new items
                 createdDate = DateTime.Now.ToString("yyyy-MM-dd_HH:mm");
             }
             else
             {
-                //keep original created date
+                // keep original created date for edits
                 createdDate = ReturnItem.CreatedDate;
             }
-            InventoryItem inventoryItem = new InventoryItem(
-                getSelectedBaseItem(),
-                ItemDetailsBox.Text,
-                Convert.ToInt32(QuantityBox.Text),
-                Convert.ToInt32(MinimumQuantityBox.Text),
-                float.Parse(PurchaseCostBox.Text, CultureInfo.InvariantCulture),
-                float.Parse(SalePriceBox.Text, CultureInfo.InvariantCulture),
-                DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
-                createdDate);
-            ReturnItem = inventoryItem;
-            this.DialogResult = true; // This tells the MainWindow that we saved.
-            this.Close();
+
+            try
+            {
+                // If editing, update the existing instance in-place so its InventoryId remains intact.
+                if (!isNew && ReturnItem != null)
+                {
+                    ReturnItem.Item = getSelectedBaseItem();
+                    ReturnItem.ItemDetails = ItemDetailsBox.Text;
+                    ReturnItem.Quantity = Convert.ToInt32(QuantityBox.Text);
+                    ReturnItem.MinQuantity = Convert.ToInt32(MinimumQuantityBox.Text);
+                    ReturnItem.PurchaseCost = float.Parse(PurchaseCostBox.Text, CultureInfo.InvariantCulture);
+                    ReturnItem.SalePrice = float.Parse(SalePriceBox.Text, CultureInfo.InvariantCulture);
+                    ReturnItem.LastModified = DateTime.Now.ToString("yyyy-MM-dd_HH:mm");
+                    // CreatedDate remains as-is (createdDate variable preserves it)
+                }
+                else
+                {
+                    // New item: create new instance (InventoryId will be assigned by DB on insert)
+                    InventoryItem inventoryItem = new InventoryItem(
+                        getSelectedBaseItem(),
+                        ItemDetailsBox.Text,
+                        Convert.ToInt32(QuantityBox.Text),
+                        Convert.ToInt32(MinimumQuantityBox.Text),
+                        float.Parse(PurchaseCostBox.Text, CultureInfo.InvariantCulture),
+                        float.Parse(SalePriceBox.Text, CultureInfo.InvariantCulture),
+                        DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
+                        createdDate);
+                    ReturnItem = inventoryItem;
+                }
+
+                this.DialogResult = true; // tell caller we saved
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -191,51 +202,63 @@ namespace WEGutters
 
                 CategoryComboBox.SelectedIndex = 0;
                 CategoryComboBox.IsEnabled = true;
+                CategoryLabel.Opacity = 1;
 
                 SKUComboBox.SelectedIndex = 0;
                 SKUComboBox.IsEnabled = true;
+                SKULabel.Opacity = 1;
 
                 QuantityPerBundleBox.Text = "";
                 QuantityPerBundleBox.IsEnabled = true;
+                QuantityPerBundleLabel.Opacity = 1;
 
                 UnitBox.Text = "";
                 UnitBox.IsEnabled = true;
+                UnitLabel.Opacity = 1;
             }
             else
             {
                 ItemNameComboBox.IsEditable = false;
-                // BaseItem no longer contains ItemDetails; clear it so user can enter inventory-specific details.
-                ItemDetailsBox.Text = "";
 
                 // gets the matching object by ID
                 var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
                 CategoryComboBox.SelectedItem = matchingCategory;
                 CategoryComboBox.IsEnabled = false;
+                CategoryLabel.Opacity = 0.25;
 
                 // gets the matching object by ID
                 var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
                 SKUComboBox.SelectedItem = matchingSKU;
                 SKUComboBox.IsEnabled = false;
+                SKULabel.Opacity = 0.25;
 
                 QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
                 QuantityPerBundleBox.IsEnabled = false;
+                QuantityPerBundleLabel.Opacity = 0.25;
 
                 UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
                 UnitBox.IsEnabled = false;
+                UnitLabel.Opacity = 0.25;
             }
         }
 
 
         private SKU getSelectedSKU()
         {
-            if (SKUComboBox.SelectedIndex == 0)
+            if (SKUComboBox.SelectedIndex == 0 && !(DatabaseAccess.SKUExists(SKUComboBox.Text)))
             {
                 // create new SKU
                 SKU sku = new SKU(SKUComboBox.Text);
+                sku.SKUID = DatabaseAccess.AddSKU(SKUComboBox.Text);
                 SKUCollection.Add(sku);
                 SKUComboBox.SelectedItem = sku;
                 return sku;
-
+            }
+            else if (SKUComboBox.SelectedIndex == 0 && (DatabaseAccess.SKUExists(SKUComboBox.Text)))
+            {
+                // get existing SKU
+                var sku = SKUCollection.FirstOrDefault(s => s.SKUCode == SKUComboBox.Text);
+                return sku;
             }
             else
             {
@@ -245,12 +268,19 @@ namespace WEGutters
 
         private Category getSelectedCategory()
         {
-            if (CategoryComboBox.SelectedIndex == 0)
+            if (CategoryComboBox.SelectedIndex == 0 && !(DatabaseAccess.CategoryExists(CategoryComboBox.Text)))
             {
                 // create new SKU
                 Category categ = new Category(CategoryComboBox.Text);
+                categ.CategoryID = DatabaseAccess.AddCategory(CategoryComboBox.Text);
                 CategoryCollection.Add(categ);
                 CategoryComboBox.SelectedItem = categ;
+                return categ;
+            }
+            else if (CategoryComboBox.SelectedIndex == 0 && (DatabaseAccess.CategoryExists(CategoryComboBox.Text)))
+            {
+                // get existing category
+                var categ = CategoryCollection.FirstOrDefault(c => c.CategoryName == CategoryComboBox.Text);
                 return categ;
             }
             else
@@ -261,9 +291,14 @@ namespace WEGutters
 
         private BaseItem getSelectedBaseItem()
         {
-            if (ItemNameComboBox.SelectedIndex == 0)
+            if (ItemNameComboBox.SelectedIndex == 0 && (DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
             {
-                // create new BaseItem (no ItemDetails here)
+                throw new InvalidOperationException(
+                    $"Item with the name '{ItemNameComboBox.Text}' already exists."
+                );
+            }
+            else if (ItemNameComboBox.SelectedIndex == 0 && !(DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
+            { 
                 SKU sku = getSelectedSKU();
                 Category category = getSelectedCategory();
                 BaseItem baseItem = new BaseItem(
@@ -272,6 +307,12 @@ namespace WEGutters
                     category,
                     UnitBox.Text,
                     Convert.ToInt32(QuantityPerBundleBox.Text));
+                baseItem.ItemID = DatabaseAccess.AddBaseItem(
+                        sku,
+                        ItemNameComboBox.Text,
+                        category,
+                        UnitBox.Text,
+                        Convert.ToInt32(QuantityPerBundleBox.Text));
                 return baseItem;
             }
             else
@@ -308,10 +349,10 @@ namespace WEGutters
             // Item details
             var itemDetails = (ItemDetailsBox.Text ?? string.Empty).Trim();
             ItemDetailsBox.Text = itemDetails;
-            if (string.IsNullOrEmpty(itemDetails))
-            {
-                errors.AppendLine("- Item Details cannot be blank.");
-            }
+            //if (string.IsNullOrEmpty(itemDetails))
+            //{
+            //    errors.AppendLine("- Item Details cannot be blank.");
+            //}
 
             // Category
             string categoryName;

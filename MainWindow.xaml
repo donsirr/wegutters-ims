@@ -426,12 +426,15 @@
                     </Grid>
                 </Border>
 
-                <DataGrid x:Name="StockDataGrid" Grid.Row="1" ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}">
+                <DataGrid x:Name="StockDataGrid" Grid.Row="1"  ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                          ScrollViewer.CanContentScroll="True"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="Auto"/>
-                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="2*"/>
+                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="SizeToHeader"/>
                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto"/>
-                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="*"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="Auto"/>
                         <DataGridTextColumn Header="Purchase Cost ($)" Binding="{Binding PurchaseCost}" Width="Auto"/>
                         <DataGridTextColumn Header="Item Value ($)" Binding="{Binding ItemValue}" Width="Auto"/>
                         <DataGridTextColumn Header="Sale Price ($)" Binding="{Binding SalePrice}" Width="Auto"/>

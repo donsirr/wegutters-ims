@@ -12,8 +12,8 @@
     <Window.Resources>
 
         <LinearGradientBrush x:Key="ComboBox.Static.Background" EndPoint="0,1" StartPoint="0,0">
-            <GradientStop Color="#FFF0F0F0" Offset="0.0"/>
-            <GradientStop Color="#FFE5E5E5" Offset="1.0"/>
+            <GradientStop Color="#3E3E40" Offset="0.0"/>
+            <GradientStop Color="#3E3E40" Offset="1.0"/>
         </LinearGradientBrush>
         <SolidColorBrush x:Key="ComboBox.Static.Border" Color="#555555"/>
         <SolidColorBrush x:Key="ComboBox.Static.Glyph" Color="#555555"/>
@@ -170,7 +170,7 @@
                     </theme:SystemDropShadowChrome>
                 </Popup>
                 <ToggleButton x:Name="toggleButton" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource Mode=TemplatedParent}}" Style="{StaticResource ComboBoxToggleButton}"/>
-                <TextBox x:Name="PART_EditableTextBox" Visibility="Hidden" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" Margin="{TemplateBinding Padding}" BorderThickness="0" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                <TextBox x:Name="PART_EditableTextBox" Visibility="Hidden" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}" Margin="{TemplateBinding Padding}" BorderThickness="0" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Opacity="1"/>
                 <ContentPresenter x:Name="contentPresenter" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Content="{TemplateBinding SelectionBoxItem}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
             </Grid>
             <ControlTemplate.Triggers>
@@ -200,6 +200,12 @@
                     <Setter TargetName="contentPresenter" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Hidden"/>
                 </Trigger>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter TargetName="contentPresenter" Property="Opacity" Value="1"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="contentPresenter" Property="Opacity" Value="0.5"/>
+                </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
@@ -212,6 +218,13 @@
             <Setter Property="Height" Value="27.96"/>
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="Template" Value="{StaticResource ComboBoxTemplate}"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="#3E3E40"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
@@ -255,7 +268,7 @@
                           IsEditable="True"/>
 
         <!-- Category -->
-        <TextBlock Grid.Row="2" Text="Category:" Foreground="White" Margin="0,5,0,0"/>
+        <TextBlock x:Name="CategoryLabel" Grid.Row="2" Text="Category:" Foreground="White" Margin="0,5,0,0"/>
 
         <ComboBox Grid.Row="3" Margin="0,5" x:Name="CategoryComboBox" Style="{DynamicResource ComboBoxStyle}" 
                           ItemsSource="{Binding CategoryCollection, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -267,7 +280,7 @@
 
 
         <!-- SKU Section -->
-        <TextBlock Grid.Row="4" Text="SKU:" Foreground="White" Margin="0,5,0,0"/>
+        <TextBlock x:Name="SKULabel" Grid.Row="4" Text="SKU:" Foreground="White" Margin="0,5,0,0"/>
 
         <ComboBox Grid.Row="5" Margin="0,5" x:Name="SKUComboBox" Style="{StaticResource ComboBoxStyle}" 
                           ItemsSource="{Binding SKUCollection, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -284,11 +297,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                <TextBlock Text="Quantity Per Bundle:" Foreground="White"/>
+                <TextBlock x:Name="QuantityPerBundleLabel" Text="Quantity Per Bundle:" Foreground="White"/>
                 <TextBox x:Name="QuantityPerBundleBox" Style="{StaticResource SearchBoxStyle}" Margin="0,2,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                <TextBlock Text="Unit (e.g., pcs, kg, m):" Foreground="White"/>
+                <TextBlock x:Name="UnitLabel" Text="Unit (e.g., pcs, kg, m):" Foreground="White"/>
                 <TextBox x:Name="UnitBox" Style="{StaticResource SearchBoxStyle}" Margin="0,2,0,0"/>
             </StackPanel>
         </Grid>

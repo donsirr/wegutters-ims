@@ -105,36 +105,6 @@ namespace WEGutters
 
         #region addMethods 
 
-        private void addNewSKU(SKU sku)
-        {
-            // add SKU to database and set its ID because AddSKU in database returns the ID 
-            sku.SKUID = DatabaseAccess.AddSKU(sku.SKUCode);
-        }
-
-        private void addNewCategory(Category category)
-        {
-            // add Category to database and set its ID because AddCategory in database returns the ID 
-            category.CategoryID = DatabaseAccess.AddCategory(category.CategoryName);
-        }
-
-        private void addBaseItem(BaseItem baseItem)
-        {
-
-            // ensure SKU exists in database else add it
-            if (baseItem.SKUProperty.SKUID == 0 && !(DatabaseAccess.SKUExists(baseItem.SKUProperty.SKUCode)) )
-            {
-                addNewSKU(baseItem.SKUProperty);
-            }
-            // ensure Category exists in database else add it
-            if (baseItem.Category.CategoryID == 0 && !(DatabaseAccess.CategoryExists(baseItem.Category.CategoryName)) )
-            {
-                addNewCategory(baseItem.Category);
-            }
-
-            // add BaseItem to database and set its ID because AddBaseItem in database returns the ID 
-            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.Category, baseItem.Unit, baseItem.QuantityPerBundle);
-        }
-
         private void addInventoryItem(InventoryItem inventoryItem)
         {
             // ensure BaseItem exists in database else add it
@@ -144,12 +114,6 @@ namespace WEGutters
             Category category = inventoryItem.Item.Category;
             string unit = inventoryItem.Item.Unit;
             int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
-
-            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)) )
-            {
-                addBaseItem(inventoryItem.Item);
-            }
-            // add InventoryItem to database and set its ID because AddInventoryItem in database returns the ID 
             inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.ItemDetails, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
         }
 
@@ -173,7 +137,7 @@ namespace WEGutters
                 // Check if the user clicked "Save"
                 if (result == true)
                 {
-                    // If they saved, add item to the data grid
+                    // If they saved, update the data grid entry with the edited item
                     int selectedIndex = dataGrid.SelectedIndex;
                     InventoryList[selectedIndex] = addItemWindow.ReturnItem.ToDisplay();
 
@@ -192,13 +156,9 @@ namespace WEGutters
                     string unit = addItemWindow.ReturnItem.Item.Unit;
                     int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
 
-                    if (addItemWindow.ReturnItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, category, unit, qtyPerBundle)))
-                    {
-                        addBaseItem(addItemWindow.ReturnItem.Item);
-                    }
 
-                    // Persist inventory changes, including itemDetails which is now on Inventory row
-                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    // Persist inventory changes using the edited InventoryItem returned by the dialog
+                    DatabaseAccess.EditInventoryItem(addItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
 

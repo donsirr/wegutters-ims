@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WEGutters
 {
@@ -409,7 +410,7 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE Category SET (CategoryName) = @newCategoryName WHERE CategoryID = @id;", conn))
+                using (var cmd = new SQLiteCommand("UPDATE Category SET CategoryName = @newCategoryName WHERE CategoryID = @id;", conn))
                 {
                     cmd.Parameters.AddWithValue("@newCategoryName", categoryName);
                     cmd.Parameters.AddWithValue("@id", id);
@@ -424,7 +425,7 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE SKU SET (SKU_Code) = @newSKUCode WHERE SKU_ID = @id;", conn))
+                using (var cmd = new SQLiteCommand("UPDATE SKU SET SKU_Code = @newSKUCode WHERE SKU_ID = @id;", conn))
                 {
                     cmd.Parameters.AddWithValue("@newSKUCode", skuCode);
                     cmd.Parameters.AddWithValue("@id", id);
@@ -439,7 +440,14 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE BaseItems SET (ItemName, CategoryID, Unit, QuantityPerBundle) = (@newItemName, @newCategoryID, @newUnit, @newQuantityPerBundle) WHERE ItemID = @id;", conn))
+                using (var cmd = new SQLiteCommand("""
+                    UPDATE BaseItems SET 
+                    ItemName = @newItemName, 
+                    CategoryID = @newCategoryID,
+                    Unit = @newUnit, 
+                    QuantityPerBundle = @newQuantityPerBundle
+                    WHERE ItemID = @id;
+                    """, conn))
                 {
                     cmd.Parameters.AddWithValue("@newItemName", itemName);
                     cmd.Parameters.AddWithValue("@newCategoryID", GetCategoryID(category));
@@ -457,8 +465,19 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE Inventory SET (ItemDetails, Quantity, MinimumQuantity, PurchaseCost, SalePrice, LastModified) = (@newItemDetails, @newQuantity, @newMinQuantity, @newPurchaseCost, @newSalePrice, @newLastModified) WHERE InventoryID = @id;", conn))
+                using (var cmd = new SQLiteCommand("""
+                    UPDATE Inventory SET
+                    ItemID = @itemID,
+                    ItemDetails = @newItemDetails,
+                    Quantity = @newQuantity,
+                    MinimumQuantity = @newMinQuantity,
+                    PurchaseCost = @newPurchaseCost,
+                    SalePrice = @newSalePrice,
+                    LastModified = @newLastModified 
+                    WHERE InventoryID = @id;
+                    """, conn))               
                 {
+                    cmd.Parameters.AddWithValue("@itemID", GetBaseItemID(inventoryItem.Item));
                     cmd.Parameters.AddWithValue("@newItemDetails", itemDetails);
                     cmd.Parameters.AddWithValue("@newQuantity", quantity);
                     cmd.Parameters.AddWithValue("@newMinQuantity", minQuantity);
@@ -564,32 +583,47 @@ namespace WEGutters
                 }
             }
         }
-
-        public static bool BaseItemExists(SKU sku, string itemName, Category category, string unit, int qtyPerBundle)
+        public static bool BaseItemExists(string itemName)
         {
-            int skuID = GetSKUID(sku);
-            int categoryID = GetCategoryID(category);
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand("""
                                                   SELECT COUNT(*) FROM BaseItems 
-                                                  WHERE SKU_ID = @SKUID
-                                                  AND ItemName = @ItemName
-                                                  AND CategoryID = @CategoryID
-                                                  AND Unit = @Unit
-                                                  AND QuantityPerBundle = @QtyPerBundle;
+                                                  WHERE ItemName = @ItemName
                                                   """, conn))
                 {
-                    cmd.Parameters.AddWithValue("@SKUID", skuID);
                     cmd.Parameters.AddWithValue("@ItemName", itemName);
-                    cmd.Parameters.AddWithValue("@CategoryID", categoryID);
-                    cmd.Parameters.AddWithValue("@Unit", unit);
-                    cmd.Parameters.AddWithValue("@QtyPerBundle", qtyPerBundle);
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
                     return count > 0;
                 }
             }
+
+            //public static bool BaseItemExists(SKU sku, string itemName, Category category, string unit, int qtyPerBundle)
+            //{
+            //    int skuID = GetSKUID(sku);
+            //    int categoryID = GetCategoryID(category);
+            //    using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
+            //    {
+            //        conn.Open();
+            //        using (var cmd = new SQLiteCommand("""
+            //                                          SELECT COUNT(*) FROM BaseItems 
+            //                                          WHERE SKU_ID = @SKUID
+            //                                          AND ItemName = @ItemName
+            //                                          AND CategoryID = @CategoryID
+            //                                          AND Unit = @Unit
+            //                                          AND QuantityPerBundle = @QtyPerBundle;
+            //                                          """, conn))
+            //        {
+            //            cmd.Parameters.AddWithValue("@SKUID", skuID);
+            //            cmd.Parameters.AddWithValue("@ItemName", itemName);
+            //            cmd.Parameters.AddWithValue("@CategoryID", categoryID);
+            //            cmd.Parameters.AddWithValue("@Unit", unit);
+            //            cmd.Parameters.AddWithValue("@QtyPerBundle", qtyPerBundle);
+            //            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            //            return count > 0;
+            //        }
+            //    }
         } 
 
         #endregion
@@ -630,7 +664,7 @@ namespace WEGutters
                                                     WHERE b.ItemName LIKE @Search OR s.SKU_Code LIKE @Search OR c.CategoryName LIKE @Search;
                                                     """, conn))
                 {
-                    cmd.Parameters.AddWithValue("@Search", search);
+                    cmd.Parameters.AddWithValue("@Search", "%" + search + "%");
 
                     using (var reader = cmd.ExecuteReader())
                     {

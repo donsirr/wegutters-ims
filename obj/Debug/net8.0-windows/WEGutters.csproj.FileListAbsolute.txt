@@ -225,7 +225,6 @@ C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\Ad
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\MainWindow.g.cs
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\App.g.cs
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters_MarkupCompile.cache
-C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters_MarkupCompile.lref
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\AddEditItem.baml
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters.g.resources
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters.GeneratedMSBuildEditorConfig.editorconfig
@@ -376,3 +375,4 @@ C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\bin\Debug\net8.0-windows\Ex
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\bin\Debug\net8.0-windows\RBush.dll
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\bin\Debug\net8.0-windows\SixLabors.Fonts.dll
 C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\bin\Debug\net8.0-windows\System.IO.Packaging.dll
+C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Debug\net8.0-windows\WEGutters_MarkupCompile.lref
