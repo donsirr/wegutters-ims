@@ -21,11 +21,11 @@ namespace WEGutters
         public BaseItem(SKU SKU, string itemName, Category category, string unit, int quantityPerBundle)
         {
             //this.itemID = itemID;
-            this.SKU = SKU;
-            this.itemName = itemName;
-            this.category = category;
-            this.unit = unit;
-            this.quantityPerBundle = quantityPerBundle;
+            SKUProperty = SKU;
+            ItemName = itemName;
+            Category = category;
+            Unit = unit;
+            QuantityPerBundle = quantityPerBundle;
         }
         public int ItemID
         {

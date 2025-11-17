@@ -112,7 +112,7 @@ namespace WEGutters
         private void updateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
         {
             BaseItemCollection = BaseItems;
-            BaseItemCollection.Insert(0,(new BaseItem(null, "Add New Item", null, null, 0)));
+            BaseItemCollection.Insert(0,(new BaseItem(new SKU("null"), "Add New Item", new Category("null"), "null", 1)));
         }
         private void MakeBaseItemButton_Click(object sender, RoutedEventArgs e)
         {
@@ -132,28 +132,36 @@ namespace WEGutters
         }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if (isNew)
+            try
             {
-                //set date to now
-                createdDate = DateTime.Now.ToString("yyyy-MM-dd_HH:mm");
+                if (isNew)
+                {
+                    //set date to now
+                    createdDate = DateTime.Now.ToString("yyyy-MM-dd_HH:mm");
+                }
+                else
+                {
+                    //keep original created date
+                    createdDate = ReturnItem.CreatedDate;
+                }
+                InventoryItem inventoryItem = new InventoryItem(
+                    getSelectedBaseItem(),
+                    ItemDetailsBox.Text,
+                    Convert.ToInt32(QuantityBox.Text),
+                    Convert.ToInt32(MinimumQuantityBox.Text),
+                    float.Parse(PurchaseCostBox.Text),
+                    float.Parse(SalePriceBox.Text),
+                    DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
+                    createdDate);
+                ReturnItem = inventoryItem;
+                this.DialogResult = true; // This tells the MainWindow that we saved.
+                this.Close();
             }
-            else
+            catch (System.Exception ex)
             {
-                //keep original created date
-                createdDate = ReturnItem.CreatedDate;
+                // Catch any type of exception
+                MessageBox.Show("An error occurred: " + ex.Message, "Error");
             }
-            InventoryItem inventoryItem = new InventoryItem(
-                getSelectedBaseItem(),
-                ItemDetailsBox.Text,
-                Convert.ToInt32(QuantityBox.Text),
-                Convert.ToInt32(MinimumQuantityBox.Text),
-                float.Parse(PurchaseCostBox.Text),
-                float.Parse(SalePriceBox.Text),
-                DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
-                createdDate);
-            ReturnItem = inventoryItem;
-            this.DialogResult = true; // This tells the MainWindow that we saved.
-            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

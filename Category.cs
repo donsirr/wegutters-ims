@@ -14,7 +14,7 @@ namespace WEGutters
         public Category(string categoryName)
         {
             //categoryID = categoryID;
-            this.categoryName = categoryName;
+            CategoryName = categoryName;
         }
         public int CategoryID
         {

@@ -15,7 +15,7 @@ namespace WEGutters
         public SKU (string skuCode)
         {
             //SKU_ID = skuID;
-            SKU_Code = skuCode;
+            SKUCode = skuCode;
         }
 
         public int SKUID

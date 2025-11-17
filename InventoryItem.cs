@@ -41,14 +41,14 @@ namespace WEGutters
         // Note: itemDetails moved to InventoryItem
         public InventoryItem(BaseItem item, string itemDetails, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
         {
-            this.item = item ?? throw new ArgumentException("Item cannot be null");
-            this.itemDetails = itemDetails ?? string.Empty;
-            this.quantity = quantity;
-            this.minQuantity = minQuantity;
-            this.purchaseCost = purchaseCost;
-            this.salePrice = salePrice;
-            this.lastModified = lastModified;
-            this.createdDate = createdDate;
+            Item = item ?? throw new ArgumentException("Item cannot be null");
+            ItemDetails = itemDetails ?? string.Empty;
+            Quantity = quantity;
+            MinQuantity = minQuantity;
+            PurchaseCost = purchaseCost;
+            SalePrice = salePrice;
+            LastModified = lastModified;
+            CreatedDate = createdDate;
         }
 
         // calls the InventoryItemDisplay and de-encapsulates the properties from InventoryItem and BaseItem
