@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using WEGutters.ConstructorClasses;
 
 namespace WEGutters
 {
@@ -89,12 +90,12 @@ namespace WEGutters
                 ws.Cell(row, 9).Style.NumberFormat.Format = "$0.00";
 
                 ws.Cell(row, 10).Value = item?.Quantity ?? 0;
-                ws.Cell(row, 11).Value = item?.MinCount ?? 0;
+                ws.Cell(row, 11).Value = item?.MinQuantity ?? 0;
                 ws.Cell(row, 12).Value = item?.Unit ?? string.Empty;
 
                 // Conditional coloring similar to PDF
                 var qty = item?.Quantity ?? 0;
-                var min = item?.MinCount ?? 0;
+                var min = item?.MinQuantity ?? 0;
                 if (qty < min)
                     ws.Range(row, 1, row, headers.Length).Style.Fill.BackgroundColor = XLColor.FromHtml("#ff9696");
                 else if (qty == min)
@@ -108,8 +109,8 @@ namespace WEGutters
             // Summary rows
             int startSummaryRow = row + 1;
             int totalItems = list.Count;
-            int belowMin = list.Count(i => i.Quantity < i.MinCount);
-            int atMin = list.Count(i => i.Quantity == i.MinCount);
+            int belowMin = list.Count(i => i.Quantity < i.MinQuantity);
+            int atMin = list.Count(i => i.Quantity == i.MinQuantity);
             float invValue = list.Sum(i => i.itemInstance?.calcItemValue() ?? 0f);
             float projectedSum = list.Sum(i => i.itemInstance?.calcProjectedSale() ?? 0f);
 

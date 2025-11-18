@@ -3,6 +3,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WEGutters.ConstructorClasses;
 
 namespace WEGutters
 {
@@ -32,8 +34,78 @@ namespace WEGutters
             get => _inventoryList;
             set
             {
+                // remove old collectionchange event subscriptions so when we = it to a new instance it wont duplicate
+                if (_inventoryList != null)
+                    _inventoryList.CollectionChanged -= InventoryList_CollectionChanged;
+
                 _inventoryList = value;
+
+                // subscribe  to new collection events, allows it to change on add, remove, edit, not just on =
+                if (_inventoryList != null)
+                    _inventoryList.CollectionChanged += InventoryList_CollectionChanged;
+
                 OnPropertyChanged(nameof(InventoryList));
+                UpdateDashboard();
+            }
+
+        }
+        private void InventoryList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateDashboard();
+        }
+
+        private int _totalItems;
+        public int TotalItems
+        {
+            get => _totalItems;
+            set
+            {
+                _totalItems = value;
+                OnPropertyChanged(nameof(TotalItems));
+            }
+        }
+
+        private int _ItemsAtMinimumAtMinimum;
+        public int ItemsAtMinimum
+        {
+            get => _ItemsAtMinimumAtMinimum;
+            set
+            {
+                _ItemsAtMinimumAtMinimum = value;
+                OnPropertyChanged(nameof(ItemsAtMinimum));
+            }
+        }
+
+        private int _ItemsBelowMinimum;
+        public int ItemsBelowMinimum
+        {
+            get => _ItemsBelowMinimum;
+            set
+            {
+                _ItemsBelowMinimum = value;
+                OnPropertyChanged(nameof(ItemsBelowMinimum));
+            }
+        }
+
+        private string _totalInventoryValue;
+        public string TotalInventoryValue
+        {
+            get => _totalInventoryValue;
+            set
+            {
+                _totalInventoryValue = value;
+                OnPropertyChanged(nameof(TotalInventoryValue));
+            }
+        }
+
+        private string _totalProjectedSales;
+        public string TotalProjectedSales
+        {
+            get => _totalProjectedSales;
+            set
+            {
+                _totalProjectedSales = value;
+                OnPropertyChanged(nameof(TotalProjectedSales));
             }
         }
 
@@ -55,7 +127,9 @@ namespace WEGutters
         // Source - https://stackoverflow.com/a
         // Posted by Aleksey
         // Retrieved 2025-11-09, License - CC BY-SA 3.0
-        public T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
+
+        // used to get the DataGrid from the container
+        private T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
         {
             T childElement = null;
             var nChildCount = VisualTreeHelper.GetChildrenCount(element);
@@ -80,6 +154,15 @@ namespace WEGutters
             return childElement;
         }
 
+        private void UpdateDashboard() 
+        { 
+            TotalItems = InventoryList.Count;
+            ItemsAtMinimum = InventoryList.Count(item => item.Quantity == item.MinQuantity);
+            ItemsBelowMinimum = InventoryList.Count(item => item.Quantity < item.MinQuantity);
+            TotalInventoryValue = InventoryList.Sum(item => item.PurchaseCost * item.Quantity).ToString("$0.00");
+            TotalProjectedSales = InventoryList.Sum(item => item.SalePrice * item.Quantity).ToString("$0.00");
+        }
+
         #region Stock Button Functionality
 
         private void Stock_NewItem_Click(object sender, RoutedEventArgs e)
@@ -99,25 +182,16 @@ namespace WEGutters
             {
                 // If they saved, add item to the data grid
                 InventoryList.Add(addItemWindow.ReturnItem.ToDisplay());
-                addInventoryItem(addItemWindow.ReturnItem);
+                addItemWindow.ReturnItem.InventoryId = DatabaseAccess.AddInventoryItem(addItemWindow.ReturnItem.Item,
+                                                                                       addItemWindow.ReturnItem.ItemDetails,
+                                                                                       addItemWindow.ReturnItem.Quantity,
+                                                                                       addItemWindow.ReturnItem.MinQuantity, 
+                                                                                       addItemWindow.ReturnItem.PurchaseCost,
+                                                                                       addItemWindow.ReturnItem.SalePrice,
+                                                                                       addItemWindow.ReturnItem.LastModified,
+                                                                                       addItemWindow.ReturnItem.CreatedDate);
             }
         }
-
-        #region addMethods 
-
-        private void addInventoryItem(InventoryItem inventoryItem)
-        {
-            // ensure BaseItem exists in database else add it
-            SKU sku = inventoryItem.Item.SKUProperty;
-            string itemName = inventoryItem.Item.ItemName;
-            string itemDetails = inventoryItem.ItemDetails; // moved from BaseItem to InventoryItem
-            Category category = inventoryItem.Item.Category;
-            string unit = inventoryItem.Item.Unit;
-            int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
-            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.ItemDetails, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
-        }
-
-        #endregion
 
         private void Stock_EditItem_Click(object sender, RoutedEventArgs e)
         {
@@ -271,7 +345,7 @@ namespace WEGutters
                 }
         #endregion
 
-            #region Services Button Functionality
+        #region Services Button Functionality
 
         private void Services_Refresh_Click(object sender, RoutedEventArgs e)
         {
@@ -375,9 +449,5 @@ namespace WEGutters
 
         #endregion
 
-        private void rbStock_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

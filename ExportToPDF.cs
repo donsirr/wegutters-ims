@@ -5,6 +5,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WEGutters.ConstructorClasses;
 using static System.Net.Mime.MediaTypeNames;
 // Alias QuestPDF colors to avoid ambiguity with System.Windows.Media.Colors
 using QPdfColors = QuestPDF.Helpers.Colors;
@@ -120,10 +121,10 @@ namespace WEGutters
                     foreach (var item in _items)
                     {
                         string bgColor = "#ffffff";
-                        if (item.Quantity == item.MinCount)
+                        if (item.Quantity == item.MinQuantity)
                         {
                             bgColor = "#ffecad";
-                        } else if (item.Quantity < item.MinCount)
+                        } else if (item.Quantity < item.MinQuantity)
                         {
                             bgColor = "#ff9696";
                         }
@@ -137,13 +138,13 @@ namespace WEGutters
                             Cell(table, item?.SalePrice.ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.ProjectedSale.ToString("$0.00") ?? "$0.00", bgColor, center: true);
                             Cell(table, item?.Quantity.ToString() ?? "0", bgColor, center: true);
-                            Cell(table, item?.MinCount.ToString() ?? "0", bgColor, center: true);
+                            Cell(table, item?.MinQuantity.ToString() ?? "0", bgColor, center: true);
                             Cell(table, item?.Unit ?? "", bgColor, center: true);
                     }
 
                     int totalItems = _items.Count;
-                    int belowMin = _items.Count(i => i.Quantity < i.MinCount);
-                    int atMin = _items.Count(i => i.Quantity == i.MinCount);
+                    int belowMin = _items.Count(i => i.Quantity < i.MinQuantity);
+                    int atMin = _items.Count(i => i.Quantity == i.MinQuantity);
                     float invValue = _items.Sum(i => i.itemInstance.calcItemValue());
 
                     table.Cell().ColumnSpan(4).Element(CellData).Element(e => e.Height(20)).Text($"Total Item Count: {totalItems}");
@@ -157,8 +158,8 @@ namespace WEGutters
             void BuildSummary(IContainer container)
             {
                 int totalItems = _items.Count;
-                int belowMin = _items.Count(i => i.Quantity < i.MinCount);
-                int atMin = _items.Count(i => i.Quantity == i.MinCount);
+                int belowMin = _items.Count(i => i.Quantity < i.MinQuantity);
+                int atMin = _items.Count(i => i.Quantity == i.MinQuantity);
                 float invValue = _items.Sum(i => i.PurchaseCost);
                 container.Table(table =>
                 {

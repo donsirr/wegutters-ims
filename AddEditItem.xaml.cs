@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WEGutters.ConstructorClasses;
 
 namespace WEGutters
 {
@@ -34,19 +35,21 @@ namespace WEGutters
         {
             InitializeComponent();
 
-            updateCategoryComboBox(DatabaseAccess.GetCategories());
-            updateSKUComboBox(DatabaseAccess.GetSKUs());
-            updateBaseItemComboBox(DatabaseAccess.GetBaseItems());
+            UpdateCategoryComboBox(DatabaseAccess.GetCategories());
+            UpdateSKUComboBox(DatabaseAccess.GetSKUs());
+            UpdateBaseItemComboBox(DatabaseAccess.GetBaseItems());
 
             this.isNew = isNew;
             ReturnItem = currentItem;
             DataContext = this;
             if (!isNew)
             {
-                setEditValues();
+                SetEditValues();
             }
         }
-        private void setEditValues()
+
+        // Sets the input fields' data
+        private void SetEditValues()
         {
             if (ReturnItem == null || ReturnItem.Item == null) return;
 
@@ -100,23 +103,23 @@ namespace WEGutters
                 SalePriceBox.Text = ReturnItem.SalePrice.ToString();
             }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
-        private void updateCategoryComboBox(ObservableCollection<Category> Categories)
+        private void UpdateCategoryComboBox(ObservableCollection<Category> Categories)
         {
             CategoryCollection = Categories;
             CategoryCollection.Insert(0,(new Category("Add New Category")));
         }
-        private void updateSKUComboBox(ObservableCollection<SKU> SKUs)
+        private void UpdateSKUComboBox(ObservableCollection<SKU> SKUs)
         {
             SKUCollection = SKUs;
             SKUCollection.Insert(0,(new SKU("Add New SKU")));
         }
-
-        private void updateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
+        private void UpdateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
         {
             BaseItemCollection = BaseItems;
             BaseItemCollection.Insert(0,(new BaseItem(new SKU("null"), "Add New Item", new Category("null"), "null", 1)));
         }
 
+        // Save button click event
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             // Validate inputs before saving
@@ -142,7 +145,7 @@ namespace WEGutters
                 // If editing, update the existing instance in-place so its InventoryId remains intact.
                 if (!isNew && ReturnItem != null)
                 {
-                    ReturnItem.Item = getSelectedBaseItem();
+                    ReturnItem.Item = GetSelectedBaseItem();
                     ReturnItem.ItemDetails = ItemDetailsBox.Text;
                     ReturnItem.Quantity = Convert.ToInt32(QuantityBox.Text);
                     ReturnItem.MinQuantity = Convert.ToInt32(MinimumQuantityBox.Text);
@@ -155,7 +158,7 @@ namespace WEGutters
                 {
                     // New item: create new instance (InventoryId will be assigned by DB on insert)
                     InventoryItem inventoryItem = new InventoryItem(
-                        getSelectedBaseItem(),
+                        GetSelectedBaseItem(),
                         ItemDetailsBox.Text,
                         Convert.ToInt32(QuantityBox.Text),
                         Convert.ToInt32(MinimumQuantityBox.Text),
@@ -174,76 +177,7 @@ namespace WEGutters
                 MessageBox.Show($"Error saving item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Just close the window.
-            this.DialogResult = false; // This tells the MainWindow that we cancelled.
-            this.Close();
-        }
-
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-                if (comboBox.SelectedIndex == 0)
-                {
-                    comboBox.IsEditable = true;
-                }
-                else
-                {
-                    comboBox.IsEditable = false;
-                }
-        }
-        private void ItemNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ItemNameComboBox.SelectedIndex == 0)
-            {
-                ItemNameComboBox.IsEditable = true;
-
-                CategoryComboBox.SelectedIndex = 0;
-                CategoryComboBox.IsEnabled = true;
-                CategoryLabel.Opacity = 1;
-
-                SKUComboBox.SelectedIndex = 0;
-                SKUComboBox.IsEnabled = true;
-                SKULabel.Opacity = 1;
-
-                QuantityPerBundleBox.Text = "";
-                QuantityPerBundleBox.IsEnabled = true;
-                QuantityPerBundleLabel.Opacity = 1;
-
-                UnitBox.Text = "";
-                UnitBox.IsEnabled = true;
-                UnitLabel.Opacity = 1;
-            }
-            else
-            {
-                ItemNameComboBox.IsEditable = false;
-
-                // gets the matching object by ID
-                var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID); 
-                CategoryComboBox.SelectedItem = matchingCategory;
-                CategoryComboBox.IsEnabled = false;
-                CategoryLabel.Opacity = 0.25;
-
-                // gets the matching object by ID
-                var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
-                SKUComboBox.SelectedItem = matchingSKU;
-                SKUComboBox.IsEnabled = false;
-                SKULabel.Opacity = 0.25;
-
-                QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
-                QuantityPerBundleBox.IsEnabled = false;
-                QuantityPerBundleLabel.Opacity = 0.25;
-
-                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
-                UnitBox.IsEnabled = false;
-                UnitLabel.Opacity = 0.25;
-            }
-        }
-
-
-        private SKU getSelectedSKU()
+        private SKU GetSelectedSKU()
         {
             if (SKUComboBox.SelectedIndex == 0 && !(DatabaseAccess.SKUExists(SKUComboBox.Text)))
             {
@@ -265,8 +199,7 @@ namespace WEGutters
                 return SKUComboBox.SelectedItem as SKU;
             }
         }
-
-        private Category getSelectedCategory()
+        private Category GetSelectedCategory()
         {
             if (CategoryComboBox.SelectedIndex == 0 && !(DatabaseAccess.CategoryExists(CategoryComboBox.Text)))
             {
@@ -288,8 +221,7 @@ namespace WEGutters
                 return CategoryComboBox.SelectedItem as Category;
             }
         }
-
-        private BaseItem getSelectedBaseItem()
+        private BaseItem GetSelectedBaseItem()
         {
             if (ItemNameComboBox.SelectedIndex == 0 && (DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
             {
@@ -299,8 +231,8 @@ namespace WEGutters
             }
             else if (ItemNameComboBox.SelectedIndex == 0 && !(DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
             { 
-                SKU sku = getSelectedSKU();
-                Category category = getSelectedCategory();
+                SKU sku = GetSelectedSKU();
+                Category category = GetSelectedCategory();
                 BaseItem baseItem = new BaseItem(
                     sku,
                     ItemNameComboBox.Text,
@@ -321,7 +253,15 @@ namespace WEGutters
             }
         }
 
-        //Validation
+        // Cancel button click event
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Just close the window.
+            this.DialogResult = false; // This tells the MainWindow that we cancelled.
+            this.Close();
+        }
+
+        // Validation
         private bool ValidateInputs(out string validationError)
         {
             var errors = new StringBuilder();
@@ -445,5 +385,68 @@ namespace WEGutters
             validationError = errors.ToString().TrimEnd();
             return validationError.Length == 0;
         }
+
+        // ComboBox SelectionChanged events
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox.SelectedIndex == 0)
+            {
+                comboBox.IsEditable = true;
+            }
+            else
+            {
+                comboBox.IsEditable = false;
+            }
+        }
+        private void ItemNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ItemNameComboBox.SelectedIndex == 0)
+            {
+                ItemNameComboBox.IsEditable = true;
+
+                CategoryComboBox.SelectedIndex = 0;
+                CategoryComboBox.IsEnabled = true;
+                CategoryLabel.Opacity = 1;
+
+                SKUComboBox.SelectedIndex = 0;
+                SKUComboBox.IsEnabled = true;
+                SKULabel.Opacity = 1;
+
+                QuantityPerBundleBox.Text = "";
+                QuantityPerBundleBox.IsEnabled = true;
+                QuantityPerBundleLabel.Opacity = 1;
+
+                UnitBox.Text = "";
+                UnitBox.IsEnabled = true;
+                UnitLabel.Opacity = 1;
+            }
+            else
+            {
+                ItemNameComboBox.IsEditable = false;
+
+                // gets the matching object by ID
+                var matchingCategory = CategoryCollection.FirstOrDefault(c => c.CategoryID == (ItemNameComboBox.SelectedItem as BaseItem).Category.CategoryID);
+                CategoryComboBox.SelectedItem = matchingCategory;
+                CategoryComboBox.IsEnabled = false;
+                CategoryLabel.Opacity = 0.25;
+
+                // gets the matching object by ID
+                var matchingSKU = SKUCollection.FirstOrDefault(s => s.SKUID == (ItemNameComboBox.SelectedItem as BaseItem).SKUProperty.SKUID);
+                SKUComboBox.SelectedItem = matchingSKU;
+                SKUComboBox.IsEnabled = false;
+                SKULabel.Opacity = 0.25;
+
+                QuantityPerBundleBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).QuantityPerBundle.ToString();
+                QuantityPerBundleBox.IsEnabled = false;
+                QuantityPerBundleLabel.Opacity = 0.25;
+
+                UnitBox.Text = (ItemNameComboBox.SelectedItem as BaseItem).Unit;
+                UnitBox.IsEnabled = false;
+                UnitLabel.Opacity = 0.25;
+            }
+        }
+
+
     }
 }

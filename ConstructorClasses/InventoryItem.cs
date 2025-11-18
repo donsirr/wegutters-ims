@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WEGutters
+namespace WEGutters.ConstructorClasses
 {
     public class InventoryItemDisplay
     {
@@ -22,7 +22,7 @@ namespace WEGutters
         public int Quantity { get; set; }
         public int QtyPerBundle { get; set; }
         public string Unit { get; set; } = string.Empty;
-        public int MinCount { get; set; }
+        public int MinQuantity { get; set; }
         public string LastModified { get; set; } = string.Empty;
         public string CreatedDate { get; set; } = string.Empty;
     }
@@ -60,19 +60,19 @@ namespace WEGutters
             return new InventoryItemDisplay
             {
                 ItemName = item.ItemName ?? string.Empty,
-                ItemDetails = this.itemDetails ?? string.Empty,
+                ItemDetails = itemDetails ?? string.Empty,
                 Category = item.Category?.CategoryName ?? string.Empty,
                 SKU = item.SKUProperty?.SKUCode ?? string.Empty,
-                PurchaseCost = this.PurchaseCost,
-                ItemValue = this.calcItemValue(),
-                SalePrice = this.SalePrice,
-                ProjectedSale = this.calcProjectedSale(),
-                Quantity = this.Quantity,
+                PurchaseCost = PurchaseCost,
+                ItemValue = calcItemValue(),
+                SalePrice = SalePrice,
+                ProjectedSale = calcProjectedSale(),
+                Quantity = Quantity,
                 QtyPerBundle = item.QuantityPerBundle,
                 Unit = item.Unit ?? string.Empty,
-                MinCount = this.MinQuantity,
-                LastModified = this.LastModified ?? string.Empty,
-                CreatedDate = this.CreatedDate ?? string.Empty,
+                MinQuantity = MinQuantity,
+                LastModified = LastModified ?? string.Empty,
+                CreatedDate = CreatedDate ?? string.Empty,
                 itemInstance = this
             };
         }
