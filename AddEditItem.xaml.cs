@@ -35,9 +35,9 @@ namespace WEGutters
         {
             InitializeComponent();
 
-            UpdateCategoryComboBox(DatabaseAccess.GetCategories());
-            UpdateSKUComboBox(DatabaseAccess.GetSKUs());
-            UpdateBaseItemComboBox(DatabaseAccess.GetBaseItems());
+            UpdateCategoryComboBox(StockDBAccess.GetCategories());
+            UpdateSKUComboBox(StockDBAccess.GetSKUs());
+            UpdateBaseItemComboBox(StockDBAccess.GetBaseItems());
 
             this.isNew = isNew;
             ReturnItem = currentItem;
@@ -179,16 +179,16 @@ namespace WEGutters
         }
         private SKU GetSelectedSKU()
         {
-            if (SKUComboBox.SelectedIndex == 0 && !(DatabaseAccess.SKUExists(SKUComboBox.Text)))
+            if (SKUComboBox.SelectedIndex == 0 && !(StockDBAccess.SKUExists(SKUComboBox.Text)))
             {
                 // create new SKU
                 SKU sku = new SKU(SKUComboBox.Text);
-                sku.SKUID = DatabaseAccess.AddSKU(SKUComboBox.Text);
+                sku.SKUID = StockDBAccess.AddSKU(SKUComboBox.Text);
                 SKUCollection.Add(sku);
                 SKUComboBox.SelectedItem = sku;
                 return sku;
             }
-            else if (SKUComboBox.SelectedIndex == 0 && (DatabaseAccess.SKUExists(SKUComboBox.Text)))
+            else if (SKUComboBox.SelectedIndex == 0 && (StockDBAccess.SKUExists(SKUComboBox.Text)))
             {
                 // get existing SKU
                 var sku = SKUCollection.FirstOrDefault(s => s.SKUCode == SKUComboBox.Text);
@@ -201,16 +201,16 @@ namespace WEGutters
         }
         private Category GetSelectedCategory()
         {
-            if (CategoryComboBox.SelectedIndex == 0 && !(DatabaseAccess.CategoryExists(CategoryComboBox.Text)))
+            if (CategoryComboBox.SelectedIndex == 0 && !(StockDBAccess.CategoryExists(CategoryComboBox.Text)))
             {
                 // create new SKU
                 Category categ = new Category(CategoryComboBox.Text);
-                categ.CategoryID = DatabaseAccess.AddCategory(CategoryComboBox.Text);
+                categ.CategoryID = StockDBAccess.AddCategory(CategoryComboBox.Text);
                 CategoryCollection.Add(categ);
                 CategoryComboBox.SelectedItem = categ;
                 return categ;
             }
-            else if (CategoryComboBox.SelectedIndex == 0 && (DatabaseAccess.CategoryExists(CategoryComboBox.Text)))
+            else if (CategoryComboBox.SelectedIndex == 0 && (StockDBAccess.CategoryExists(CategoryComboBox.Text)))
             {
                 // get existing category
                 var categ = CategoryCollection.FirstOrDefault(c => c.CategoryName == CategoryComboBox.Text);
@@ -223,13 +223,13 @@ namespace WEGutters
         }
         private BaseItem GetSelectedBaseItem()
         {
-            if (ItemNameComboBox.SelectedIndex == 0 && (DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
+            if (ItemNameComboBox.SelectedIndex == 0 && (StockDBAccess.BaseItemExists(ItemNameComboBox.Text)))
             {
                 throw new InvalidOperationException(
                     $"Item with the name '{ItemNameComboBox.Text}' already exists."
                 );
             }
-            else if (ItemNameComboBox.SelectedIndex == 0 && !(DatabaseAccess.BaseItemExists(ItemNameComboBox.Text)))
+            else if (ItemNameComboBox.SelectedIndex == 0 && !(StockDBAccess.BaseItemExists(ItemNameComboBox.Text)))
             { 
                 SKU sku = GetSelectedSKU();
                 Category category = GetSelectedCategory();
@@ -239,7 +239,7 @@ namespace WEGutters
                     category,
                     UnitBox.Text,
                     Convert.ToInt32(QuantityPerBundleBox.Text));
-                baseItem.ItemID = DatabaseAccess.AddBaseItem(
+                baseItem.ItemID = StockDBAccess.AddBaseItem(
                         sku,
                         ItemNameComboBox.Text,
                         category,
@@ -399,6 +399,7 @@ namespace WEGutters
                 comboBox.IsEditable = false;
             }
         }
+
         private void ItemNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ItemNameComboBox.SelectedIndex == 0)

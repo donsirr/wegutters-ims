@@ -358,27 +358,30 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="*" Foreground="#007ACC" FontSize="16" VerticalAlignment="Center" Margin="5,0"/>
                             <TextBlock Text="#" Grid.Column="1" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" Margin="10,0"/>
-                            <TextBlock Text="&#xE721;" Grid.Column="2" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <TextBox Grid.Column="3" Text="Service name" Style="{StaticResource SearchBoxStyle}"/>
-                            <TextBlock Grid.Column="4" Text="Services count: 0" Foreground="#CCCCCC" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0"/>
+                            <TextBox x:Name="ServiceSearchBox" Grid.Column="2" Text="Search Services" Style="{StaticResource SearchBoxStyle}" KeyUp="ServiceSearchBox_KeyUp"/>
+                            <TextBlock Text="&#xE721;" Grid.Column="2" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center"  HorizontalAlignment="Right" Margin="0,0,10,0"/>
                         </Grid>
                     </Border>
 
-                    <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="100" Foreground="#444444" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Selected group contains no services" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                            <Button Content="Add new service" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
-                            <TextBlock Text="or" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="5,0"/>
-                            <Button Content="New service group" Background="Transparent" BorderBrush="#007ACC" BorderThickness="1" Foreground="#007ACC" Padding="5" Margin="5"/>
-                        </StackPanel>
-                    </StackPanel>
+                    <DataGrid x:Name="ServiceDataGrid" Grid.Row="1"  ItemsSource="{Binding ServiceList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                              ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Visible">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}" Width="Auto"/>
+                            <DataGridTextColumn Header="Contact" Binding="{Binding CustomerContactNumber}" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Service Details" Binding="{Binding ServiceDetails}" Width="Auto"/>
+                            <DataGridTextColumn Header="Service Category" Binding="{Binding ServiceCategory}" Width="Auto"/>
+                            <DataGridTextColumn Header="Material Cost Est. ($)" Binding="{Binding MaterialCost}" Width="Auto"/>
+                            <DataGridTextColumn Header="Invoice Price ($)" Binding="{Binding InvoicePrice}" Width="Auto"/>
+                            <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="Auto"/>
+                            <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </Grid>
         </DataTemplate>
@@ -800,7 +803,7 @@
                 <ContentControl x:Name="ContentControlPanel">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
-                            <Setter Property="ContentTemplate" Value="{StaticResource DashboardMainContentTemplate}"/>
+                            <Setter Property="ContentTemplate" Value="{StaticResource ServicesMainContentTemplate}"/>
                             <!-- Default should be DashboardMainContentTemplate -->
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ElementName=rbServices, Path=IsChecked}" Value="True">

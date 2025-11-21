@@ -26,7 +26,66 @@ namespace WEGutters
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        #region observable collection for customers
+        private ObservableCollection<Customer> _customerList;
 
+        public ObservableCollection<Customer> CustomerList
+        {
+            get => _customerList;
+            set
+            {
+                // commented out as we dont use customers for the dashboard currently
+                //if (_customerList != null)
+                //    _customerList.CollectionChange -= CustomerList_CollectionChanged;
+
+                //_customerList = value;
+
+                //is (_customerList != null)
+                //_customerList.CollectionChanged += CustomerList_CollectionChanged;
+
+                //OnPropertyChanged(nameof(CustomerList));
+                //UpdateDashboard();
+            }
+        }
+
+        //private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    UpdateDashboard();
+        //}
+        #endregion
+
+
+        #region observable collection for services
+        private ObservableCollection<Service> _serviceList;
+
+        public ObservableCollection<Service> ServiceList
+        {
+            get => _serviceList;
+            set
+            {
+                // commented out as we dont use services for the dashboard currently
+                //if (_serviceList != null)
+                //    _serviceList.CollectionChange -= ServiceList_CollectionChanged;
+
+                //_serviceList = value;
+
+                //is (_serviceList != null)
+                //_serviceList.CollectionChanged += ServiceList_CollectionChanged;
+
+                //OnPropertyChanged(nameof(ServiceList));
+                //UpdateDashboard();
+            }
+        }
+
+        //private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    UpdateDashboard();
+        //}
+        #endregion 
+
+
+        // observable collection for stock datagrid
+        #region stock datagrid collection
         private ObservableCollection<InventoryItemDisplay> _inventoryList;
 
         public ObservableCollection<InventoryItemDisplay> InventoryList
@@ -49,6 +108,7 @@ namespace WEGutters
             }
 
         }
+
         private void InventoryList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateDashboard();
@@ -109,7 +169,9 @@ namespace WEGutters
             }
         }
 
-        // notifies when property changes so InventoryList = ... works.
+        #endregion
+
+        // notifies when property changes so ObservableCollection = ... works.
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
         {
@@ -119,8 +181,14 @@ namespace WEGutters
         public MainWindow()
         {            
             InitializeComponent();
-            InventoryList = new ObservableCollection<InventoryItemDisplay>();
-            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+
+            //parang di na need toh? since may public na sa taas
+            //InventoryList = new ObservableCollection<InventoryItemDisplay>();
+
+            InventoryList = StockDBAccess.GetInventoryItemDisplays();
+            CustomerList = CustomerDBAccess.GetCustomers();
+            ServiceList = ServiceDBAccess.GetServices();
+
             this.DataContext = this;
         }
 
@@ -182,7 +250,7 @@ namespace WEGutters
             {
                 // If they saved, add item to the data grid
                 InventoryList.Add(addItemWindow.ReturnItem.ToDisplay());
-                addItemWindow.ReturnItem.InventoryId = DatabaseAccess.AddInventoryItem(addItemWindow.ReturnItem.Item,
+                addItemWindow.ReturnItem.InventoryId = StockDBAccess.AddInventoryItem(addItemWindow.ReturnItem.Item,
                                                                                        addItemWindow.ReturnItem.ItemDetails,
                                                                                        addItemWindow.ReturnItem.Quantity,
                                                                                        addItemWindow.ReturnItem.MinQuantity, 
@@ -232,28 +300,34 @@ namespace WEGutters
 
 
                     // Persist inventory changes using the edited InventoryItem returned by the dialog
-                    DatabaseAccess.EditInventoryItem(addItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    StockDBAccess.EditInventoryItem(addItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
 
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add logic here to:
-            // 1. Remove Item.
-            // 2. Update the Stock DataGrid's ItemsSource.
-            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
-            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to delete this item?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
             {
-                InventoryList.Remove(selectedItem);
-                DatabaseAccess.DeleteInventoryItem(selectedItem.itemInstance);
+                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+                if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+                {
+                    InventoryList.Remove(selectedItem);
+                    StockDBAccess.DeleteInventoryItem(selectedItem.itemInstance);
+                }
             }
         }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
         {
-            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+            InventoryList = StockDBAccess.GetInventoryItemDisplays();
         }
 
         // This method will handle printing the DataGrid
@@ -335,12 +409,12 @@ namespace WEGutters
                     {
                         if (searchText.IsNullOrEmpty())
                         {
-                            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+                            InventoryList = StockDBAccess.GetInventoryItemDisplays();
                             textBox.Text = "Search Stock";
                             return;
                         }
 
-                        InventoryList = DatabaseAccess.SearchInventory(searchText);
+                        InventoryList = StockDBAccess.SearchInventory(searchText);
                     }
                 }
         #endregion
@@ -349,80 +423,83 @@ namespace WEGutters
 
         private void Services_Refresh_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add logic to refresh the Services DataGrid
-            MessageBox.Show("Refresh Services Data... (functionality to be added)");
+            ServiceList = ServiceDBAccess.GetServices();
         }
 
         private void Services_NewService_Click(object sender, RoutedEventArgs e)
         {
-            AddEditServiceWindow addServiceWindow = new AddEditServiceWindow();
+            AddEditServiceWindow addServiceWindow = new AddEditServiceWindow(true);
             addServiceWindow.Owner = this; // Set this window as the owner
             addServiceWindow.Title = "Add New Service";
 
             // ShowDialog() opens the window and pauses code here until the user closes it
             bool? result = addServiceWindow.ShowDialog();
-            
+
             // Check if the user clicked "Save"
             if (result == true)
             {
-                // If they saved, refresh the data grid
-                Services_Refresh_Click(null, null);
+                // If they saved, add item to the data grid
+                ServiceList.Add(addServiceWindow.ReturnService);
+                addServiceWindow.ReturnService.ServiceID = ServiceDBAccess.AddService(addServiceWindow.ReturnService.Customer,
+                                                                                       addServiceWindow.ReturnService.ServiceDetails,
+                                                                                       addServiceWindow.ReturnService.ServiceCategory,
+                                                                                       addServiceWindow.ReturnService.MaterialCost,
+                                                                                       addServiceWindow.ReturnService.InvoicePrice,
+                                                                                       addServiceWindow.ReturnService.Details,
+                                                                                       addServiceWindow.ReturnService.LastModified,
+                                                                                       addServiceWindow.ReturnService.CreatedDate);
             }
         }
 
         private void Services_EditService_Click(object sender, RoutedEventArgs e)
         {
-            // TODO:
-            // 1. Get the selected item from the Services DataGrid
-            //    (You'll need to give your DataGrid a name in the template)
-            // 2. If nothing is selected, show a message and return.
-
-            // Example:
-            // if (myServicesDataGrid.SelectedItem == null)
-            // {
-            //     MessageBox.Show("Please select a service to edit.");
-            //     return;
-            // }
-            // var selectedService = (YourServiceClass)myServicesDataGrid.SelectedItem;
-
-
-            AddEditServiceWindow editServiceWindow = new AddEditServiceWindow();
-            editServiceWindow.Owner = this;
-            editServiceWindow.Title = "Edit Service";
-
-            // TODO:
-            // 3. Pre-load the window's textboxes with the selected item's data
-            //    editServiceWindow.ItemNameBox.Text = selectedService.Name;
-            //    editServiceWindow.CategoryBox.Text = selectedService.Category;
-            //    ...etc.
-
-            bool? result = editServiceWindow.ShowDialog();
-
-            if (result == true)
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceDataGrid");
+            if (dataGrid?.SelectedItem is Service selectedService)
             {
-                // If they saved, refresh the data grid
-                Services_Refresh_Click(null, null);
+                AddEditServiceWindow addServiceWindow = new AddEditServiceWindow(false, selectedService);
+                addServiceWindow.Owner = this; // Set this window as the owner
+                addServiceWindow.Title = "Edit Service";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = addServiceWindow.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true)
+                {
+                    // If they saved, update the data grid entry with the edited item
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    ServiceList[selectedIndex] = addServiceWindow.ReturnService;
+
+                    Customer newCustomer = addServiceWindow.ReturnService.Customer;
+                    string newServiceDetails = addServiceWindow.ReturnService.ServiceDetails;
+                    ServiceCategory newServiceCategory = addServiceWindow.ReturnService.ServiceCategory;
+                    float newMaterialCost = addServiceWindow.ReturnService.MaterialCost;
+                    float newInvoicePrice = addServiceWindow.ReturnService.InvoicePrice;
+                    string newDetails = addServiceWindow.ReturnService.Details;
+                    string newLastModified = addServiceWindow.ReturnService.LastModified;
+
+                    // Persist inventory changes using the edited InventoryItem returned by the dialog
+                    ServiceDBAccess.EditService(addServiceWindow.ReturnService, newCustomer, newServiceDetails, newServiceCategory, newMaterialCost, newInvoicePrice, newDetails, newLastModified);
+                }
             }
         }
 
         private void Services_DeleteService_Click(object sender, RoutedEventArgs e)
         {
-            // TODO:
-            // 1. Get the selected item from the Services DataGrid
-            // 2. If nothing is selected, return.
-
             MessageBoxResult result = MessageBox.Show(
-                "Are you sure you want to delete this service/product?",
+                "Are you sure you want to delete this item?",
                 "Confirm Delete",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
-                // TODO:
-                // 3. Delete the item from your database
-                // 4. Refresh the grid
-                Services_Refresh_Click(null, null);
+                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceDataGrid");
+                if (dataGrid?.SelectedItem is Service selectedService)
+                {
+                    ServiceList.Remove(selectedService);
+                    ServiceDBAccess.DeleteService(selectedService);
+                }
             }
         }
 
@@ -446,7 +523,22 @@ namespace WEGutters
             MessageBox.Show("Sorting... (functionality to be added)");
         }
 
+        private void ServiceSearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            string searchText = textBox.Text;
+            if (e.Key == Key.Enter)
+            {
+                if (searchText.IsNullOrEmpty())
+                {
+                    ServiceList = ServiceDBAccess.GetServices();
+                    textBox.Text = "Search Services";
+                    return;
+                }
 
+                ServiceList = ServiceDBAccess.SearchServices(searchText);
+            }
+        }
         #endregion
 
     }

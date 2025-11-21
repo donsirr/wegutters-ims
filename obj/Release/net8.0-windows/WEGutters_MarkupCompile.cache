@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Admin\Documents\GitHub\wegutters-ims\obj\Release\net8.0-windows\
+C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\obj\Release\net8.0-windows\
 WEGutters
 none
 false
 TRACE;RELEASE;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-C:\Users\Admin\Documents\GitHub\wegutters-ims\App.xaml
-11407045341
+C:\Users\Jullian\Documents\GitHub\fork-wegutters-ims\App.xaml
+31992613401
 
-4-731322268
-198-1588478740
-MainWindow.xaml;
+13-1703863901
+226-1239425668
+AddEditItem.xaml;AddEditService.xaml;MainWindow.xaml;
 
 False
 
