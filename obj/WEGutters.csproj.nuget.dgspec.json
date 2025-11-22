@@ -62,9 +62,17 @@
               "target": "Package",
               "version": "[2025.7.4, )"
             },
+            "ScottPlot.WPF": {
+              "target": "Package",
+              "version": "[5.1.57, )"
+            },
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.119, )"
+            },
+            "libphonenumber-csharp": {
+              "target": "Package",
+              "version": "[9.0.19, )"
             }
           },
           "imports": [

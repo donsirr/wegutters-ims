@@ -1,5 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
+using ScottPlot;
+using ScottPlot.Plottables;
+using ScottPlot.WPF;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -44,13 +47,15 @@ namespace WEGutters
                 //_customerList.CollectionChanged += CustomerList_CollectionChanged;
 
                 //OnPropertyChanged(nameof(CustomerList));
-                //UpdateDashboard();
+                //UpdateStockDashboard();
+                _customerList = value;
+                OnPropertyChanged(nameof(CustomerList));
             }
         }
 
         //private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         //{
-        //    UpdateDashboard();
+        //    UpdateStockDashboard();
         //}
         #endregion
 
@@ -63,25 +68,105 @@ namespace WEGutters
             get => _serviceList;
             set
             {
-                // commented out as we dont use services for the dashboard currently
-                //if (_serviceList != null)
-                //    _serviceList.CollectionChange -= ServiceList_CollectionChanged;
+                if (_serviceList != null)
+                        _serviceList.CollectionChanged -= ServiceList_CollectionChanged;
 
-                //_serviceList = value;
+                _serviceList = value;
 
-                //is (_serviceList != null)
-                //_serviceList.CollectionChanged += ServiceList_CollectionChanged;
+                if (_serviceList != null)
+                _serviceList.CollectionChanged += ServiceList_CollectionChanged;
 
-                //OnPropertyChanged(nameof(ServiceList));
-                //UpdateDashboard();
+                OnPropertyChanged(nameof(ServiceList));
+                UpdateServiceDashboard();
             }
         }
 
-        //private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        //{
-        //    UpdateDashboard();
-        //}
-        #endregion 
+        private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateServiceDashboard();
+        }
+
+        private int _totalServices;
+
+        public int TotalServices
+        {
+            get => _totalServices;
+            set
+            {
+                _totalServices = value;
+                OnPropertyChanged(nameof(TotalServices));
+            }
+        }
+
+        private string _highestMaterialCost;
+        public string HighestMaterialCost
+        {
+            get => _highestMaterialCost;
+            set
+            {
+                _highestMaterialCost = value;
+                OnPropertyChanged(nameof(HighestMaterialCost));
+            }
+        }
+
+        private string _highestMaterialCustomer;
+
+        public string HighestMaterialCustomer
+        {
+            get => _highestMaterialCustomer;
+            set
+            {
+                _highestMaterialCustomer = value;
+                OnPropertyChanged(nameof(HighestMaterialCustomer));
+            }
+        }
+
+        private string _highestMaterialCategory;
+
+        public string HighestMaterialCategory
+        {
+            get => _highestMaterialCategory;
+            set
+            {
+                _highestMaterialCategory = value;
+                OnPropertyChanged(nameof(HighestMaterialCategory));
+            }
+        }
+
+        private string _highestInvoice;
+
+        public string HighestInvoice
+        {
+            get => _highestInvoice;
+            set
+            {
+                _highestInvoice = value;
+                OnPropertyChanged(nameof(HighestInvoice));
+            }
+        }
+
+        private string _highestInvoiceCustomer;
+        public string HighestInvoiceCustomer
+        {
+            get => _highestInvoiceCustomer;
+            set
+            {
+                _highestInvoiceCustomer = value;
+                OnPropertyChanged(nameof(HighestInvoiceCustomer));
+            }
+        }
+
+        private string _highestInvoiceCategory;
+        public string HighestInvoiceCategory
+        {
+            get => _highestInvoiceCategory;
+            set
+            {
+                _highestInvoiceCategory = value;
+                OnPropertyChanged(nameof(HighestInvoiceCategory));
+            }
+        }
+        #endregion
 
 
         // observable collection for stock datagrid
@@ -104,14 +189,14 @@ namespace WEGutters
                     _inventoryList.CollectionChanged += InventoryList_CollectionChanged;
 
                 OnPropertyChanged(nameof(InventoryList));
-                UpdateDashboard();
+                UpdateStockDashboard();
             }
 
         }
 
         private void InventoryList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UpdateDashboard();
+            UpdateStockDashboard();
         }
 
         private int _totalItems;
@@ -222,13 +307,29 @@ namespace WEGutters
             return childElement;
         }
 
-        private void UpdateDashboard() 
+        private void UpdateStockDashboard() 
         { 
             TotalItems = InventoryList.Count;
             ItemsAtMinimum = InventoryList.Count(item => item.Quantity == item.MinQuantity);
             ItemsBelowMinimum = InventoryList.Count(item => item.Quantity < item.MinQuantity);
             TotalInventoryValue = InventoryList.Sum(item => item.PurchaseCost * item.Quantity).ToString("$0.00");
             TotalProjectedSales = InventoryList.Sum(item => item.SalePrice * item.Quantity).ToString("$0.00");
+        }
+
+        private void UpdateServiceDashboard()
+        {
+            var dashboardPlot = FindElementByName<WpfPlot>(ContentControlPanel, "DashboardPopularServices");
+            // update barPlot
+
+
+            TotalServices = ServiceList?.Count() ?? 0;
+            HighestMaterialCost = ServiceList?.MaxBy(s => s.MaterialCost)?.MaterialCost.ToString("$0.00") ?? "$0.00";
+            HighestMaterialCustomer = ServiceList?.MaxBy(s => s.MaterialCost)?.Customer.Name ?? "N/A";
+            HighestMaterialCategory = ServiceList?.MaxBy(s => s.MaterialCost)?.ServiceCategory.ServiceCategoryName ?? "N/A";
+
+            HighestInvoice = ServiceList?.MaxBy(s => s.InvoicePrice)?.InvoicePrice.ToString("$0.00") ?? "$0.00";
+            HighestInvoiceCustomer = ServiceList?.MaxBy(s => s.InvoicePrice)?.Customer.Name ?? "N/A";
+            HighestInvoiceCategory = ServiceList?.MaxBy(s => s.InvoicePrice)?.ServiceCategory.ServiceCategoryName ?? "N/A";
         }
 
         #region Stock Button Functionality
@@ -269,38 +370,38 @@ namespace WEGutters
             var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
             if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
             {
-                AddEditItem addItemWindow = new AddEditItem(false, selectedItem.itemInstance);
-                addItemWindow.Owner = this; // Set this window as the owner
-                addItemWindow.Title = "Edit Item";
+                AddEditItem editItemWindow = new AddEditItem(false, selectedItem.itemInstance);
+                editItemWindow.Owner = this; // Set this window as the owner
+                editItemWindow.Title = "Edit Item";
 
                 // ShowDialog() opens the window and pauses code here until the user closes it
-                bool? result = addItemWindow.ShowDialog();
+                bool? result = editItemWindow.ShowDialog();
 
                 // Check if the user clicked "Save"
                 if (result == true)
                 {
                     // If they saved, update the data grid entry with the edited item
                     int selectedIndex = dataGrid.SelectedIndex;
-                    InventoryList[selectedIndex] = addItemWindow.ReturnItem.ToDisplay();
+                    InventoryList[selectedIndex] = editItemWindow.ReturnItem.ToDisplay();
 
-                    int newQuantity = addItemWindow.ReturnItem.Quantity;
-                    int newMinQuantity = addItemWindow.ReturnItem.MinQuantity;
-                    float newPurchaseCost = addItemWindow.ReturnItem.PurchaseCost;
-                    float newSalePrice = addItemWindow.ReturnItem.SalePrice;
-                    string newLastModified = addItemWindow.ReturnItem.LastModified;
+                    int newQuantity = editItemWindow.ReturnItem.Quantity;
+                    int newMinQuantity = editItemWindow.ReturnItem.MinQuantity;
+                    float newPurchaseCost = editItemWindow.ReturnItem.PurchaseCost;
+                    float newSalePrice = editItemWindow.ReturnItem.SalePrice;
+                    string newLastModified = editItemWindow.ReturnItem.LastModified;
 
                     InventoryList[selectedIndex].Quantity = newQuantity;
                     
-                    SKU sku = addItemWindow.ReturnItem.Item.SKUProperty;
-                    string itemName = addItemWindow.ReturnItem.Item.ItemName;
-                    string itemDetails = addItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
-                    Category category = addItemWindow.ReturnItem.Item.Category;
-                    string unit = addItemWindow.ReturnItem.Item.Unit;
-                    int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
+                    SKU sku = editItemWindow.ReturnItem.Item.SKUProperty;
+                    string itemName = editItemWindow.ReturnItem.Item.ItemName;
+                    string itemDetails = editItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
+                    Category category = editItemWindow.ReturnItem.Item.Category;
+                    string unit = editItemWindow.ReturnItem.Item.Unit;
+                    int qtyPerBundle = editItemWindow.ReturnItem.Item.QuantityPerBundle;
 
 
                     // Persist inventory changes using the edited InventoryItem returned by the dialog
-                    StockDBAccess.EditInventoryItem(addItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    StockDBAccess.EditInventoryItem(editItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
 
@@ -456,30 +557,30 @@ namespace WEGutters
             var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceDataGrid");
             if (dataGrid?.SelectedItem is Service selectedService)
             {
-                AddEditServiceWindow addServiceWindow = new AddEditServiceWindow(false, selectedService);
-                addServiceWindow.Owner = this; // Set this window as the owner
-                addServiceWindow.Title = "Edit Service";
+                AddEditServiceWindow editServiceWindow = new AddEditServiceWindow(false, selectedService);
+                editServiceWindow.Owner = this; // Set this window as the owner
+                editServiceWindow.Title = "Edit Service";
 
                 // ShowDialog() opens the window and pauses code here until the user closes it
-                bool? result = addServiceWindow.ShowDialog();
+                bool? result = editServiceWindow.ShowDialog();
 
                 // Check if the user clicked "Save"
                 if (result == true)
                 {
                     // If they saved, update the data grid entry with the edited item
                     int selectedIndex = dataGrid.SelectedIndex;
-                    ServiceList[selectedIndex] = addServiceWindow.ReturnService;
+                    ServiceList[selectedIndex] = editServiceWindow.ReturnService;
 
-                    Customer newCustomer = addServiceWindow.ReturnService.Customer;
-                    string newServiceDetails = addServiceWindow.ReturnService.ServiceDetails;
-                    ServiceCategory newServiceCategory = addServiceWindow.ReturnService.ServiceCategory;
-                    float newMaterialCost = addServiceWindow.ReturnService.MaterialCost;
-                    float newInvoicePrice = addServiceWindow.ReturnService.InvoicePrice;
-                    string newDetails = addServiceWindow.ReturnService.Details;
-                    string newLastModified = addServiceWindow.ReturnService.LastModified;
+                    Customer newCustomer = editServiceWindow.ReturnService.Customer;
+                    string newServiceDetails = editServiceWindow.ReturnService.ServiceDetails;
+                    ServiceCategory newServiceCategory = editServiceWindow.ReturnService.ServiceCategory;
+                    float newMaterialCost = editServiceWindow.ReturnService.MaterialCost;
+                    float newInvoicePrice = editServiceWindow.ReturnService.InvoicePrice;
+                    string newDetails = editServiceWindow.ReturnService.Details;
+                    string newLastModified = editServiceWindow.ReturnService.LastModified;
 
                     // Persist inventory changes using the edited InventoryItem returned by the dialog
-                    ServiceDBAccess.EditService(addServiceWindow.ReturnService, newCustomer, newServiceDetails, newServiceCategory, newMaterialCost, newInvoicePrice, newDetails, newLastModified);
+                    ServiceDBAccess.EditService(editServiceWindow.ReturnService, newCustomer, newServiceDetails, newServiceCategory, newMaterialCost, newInvoicePrice, newDetails, newLastModified);
                 }
             }
         }
@@ -539,6 +640,176 @@ namespace WEGutters
                 ServiceList = ServiceDBAccess.SearchServices(searchText);
             }
         }
+        #endregion
+
+        #region Customers Button Functionality
+
+        //Customer_NewCustomer_Click
+        //Customer_EditCustomer_Click
+        //Customer_DeleteCustomer_Click
+        //Customer_Refresh_Click
+        //Customer_SaveAsPdf_Click
+        //Customer_Excel_Click
+
+        private void Customer_NewCustomer_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource. !!
+            AddEditCustomer addCustomer = new AddEditCustomer(true);
+            addCustomer.Owner = this; // Set this window as the owner
+            addCustomer.Title = "Add New Customer";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addCustomer.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true)
+            {
+                // If they saved, add item to the data grid
+                CustomerList.Add(addCustomer.ReturnCustomer);
+                addCustomer.ReturnCustomer.CustomerID = CustomerDBAccess.AddCustomer(addCustomer.ReturnCustomer.Name,
+                                                                                     addCustomer.ReturnCustomer.Address,
+                                                                                     addCustomer.ReturnCustomer.ContactNumber,
+                                                                                     addCustomer.ReturnCustomer.Email,
+                                                                                     addCustomer.ReturnCustomer.Comments,
+                                                                                     addCustomer.ReturnCustomer.LastModified,
+                                                                                     addCustomer.ReturnCustomer.CreatedDate);
+            }
+        }
+
+        private void Customer_EditCustomer_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "CustomerDataGrid");
+            if (dataGrid?.SelectedItem is Customer selectedCustomer)
+            {
+                AddEditCustomer editCustomerWindow = new AddEditCustomer(false, selectedCustomer);
+                editCustomerWindow.Owner = this; // Set this window as the owner
+                editCustomerWindow.Title = "Edit Customer";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = editCustomerWindow.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true)
+                {
+                    // If they saved, update the data grid entry with the edited customer
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    CustomerList[selectedIndex] = editCustomerWindow.ReturnCustomer;
+
+                    string newName = editCustomerWindow.ReturnCustomer.Name;
+                    string newAddress = editCustomerWindow.ReturnCustomer.Address;
+                    string newContactNumber = editCustomerWindow.ReturnCustomer.ContactNumber;
+                    string newEmail = editCustomerWindow.ReturnCustomer.Email;
+                    string newComments = editCustomerWindow.ReturnCustomer.Comments;
+                    string newLastModified = editCustomerWindow.ReturnCustomer.LastModified;
+
+                    // Persist inventory changes using the edited Customer returned by the dialog
+                    CustomerDBAccess.EditCustomer(editCustomerWindow.ReturnCustomer, newName, newAddress, newContactNumber, newEmail, newComments, newLastModified);
+                }
+            }
+
+        }
+        private void Customer_DeleteCustomer_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to delete this item?",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "CustomerDataGrid");
+                if (dataGrid?.SelectedItem is Customer selectedCustomer)
+                {
+                    CustomerList.Remove(selectedCustomer);
+                    CustomerDBAccess.DeleteCustomer(selectedCustomer);
+                }
+            }
+        }
+
+        // This method will be called to refresh the data in the Stock DataGrid
+        private void Customer_Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            CustomerList = CustomerDBAccess.GetCustomers();
+        }
+
+        // This method will save the grid as a PDF
+        private void Customer_SaveAsPdf_Click(object sender, RoutedEventArgs e)
+        {
+            //make new class for pdf export for customers
+            //try
+            //{
+            //    // Call the ExportToPDF to generate PDF
+            //    bool exported = ExportToPDF.ExportWithSaveDialog(this, InventoryList);
+
+            //    if (!exported)
+            //    {
+            //        // Distinguish empty list vs cancelled by user
+            //        if (InventoryList == null || InventoryList.Count == 0)
+            //            MessageBox.Show("Nothing to export.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+            //        else
+            //            MessageBox.Show("Export cancelled.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    }
+            //    else
+            //    {
+            //        // ExportWithSaveDialog already wrote file; optionally inform user
+            //        MessageBox.Show("PDF exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Failed to export PDF:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //}
+        }
+
+        // This method will save the grid as an Excel file
+        private void Customer_Excel_Click(object sender, RoutedEventArgs e)
+        {
+            //make new class for excel export for customers
+            //try
+            //{
+            //    bool exported = ExportToExcel.ExportWithSaveDialog(this, InventoryList);
+
+            //    if (!exported)
+            //    {
+            //        // Distinguish empty list vs cancelled by user
+            //        if (InventoryList == null || InventoryList.Count == 0)
+            //            MessageBox.Show("Nothing to export.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+            //        else
+            //            MessageBox.Show("Export cancelled.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show("Excel exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Failed to export Excel:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //}
+        }
+        private void CustomerSearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            string searchText = textBox.Text;
+            if (e.Key == Key.Enter)
+            {
+                if (searchText.IsNullOrEmpty())
+                {
+                    CustomerList = CustomerDBAccess.GetCustomers();
+                    textBox.Text = "Search Customers";
+                    return;
+                }
+
+                CustomerList = CustomerDBAccess.SearchCustomers(searchText);
+            }
+        }
+
         #endregion
 
     }

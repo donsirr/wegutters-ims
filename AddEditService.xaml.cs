@@ -19,6 +19,11 @@ namespace WEGutters
         {
             InitializeComponent();
 
+            ContactPhoneBox.IsEnabled = false;
+            ContactPhoneLabel.Opacity = 0.25;
+            AddressBox.IsEnabled = false;
+            AddressLabel.Opacity = 0.25;
+
             UpdateCustomerComboBox(CustomerDBAccess.GetCustomers());
             UpdateServiceCategoryComboBox(ServiceDBAccess.GetServiceCategories());
 
@@ -109,8 +114,8 @@ namespace WEGutters
                     ReturnService.Customer = GetSelectedCustomer();
                     ReturnService.ServiceDetails = ServiceDetailsBox.Text;
                     ReturnService.ServiceCategory = GetSelectedServiceCategory();
-                    ReturnService.MaterialCost = float.Parse(MaterialCostBox.Text);
-                    ReturnService.InvoicePrice = float.Parse(InvoicePriceBox.Text);
+                    ReturnService.MaterialCost = float.Parse(MaterialCostBox.Text, CultureInfo.InvariantCulture);
+                    ReturnService.InvoicePrice = float.Parse(InvoicePriceBox.Text, CultureInfo.InvariantCulture);
                     ReturnService.Details = DetailsBox.Text;
                     ReturnService.LastModified = DateTime.Now.ToString("yyyy-MM-dd_HH:mm");
                     // CreatedDate remains as-is (createdDate variable preserves it)
@@ -122,8 +127,8 @@ namespace WEGutters
                         GetSelectedCustomer(),
                         ServiceDetailsBox.Text,
                         GetSelectedServiceCategory(),
-                        float.Parse(MaterialCostBox.Text),
-                        float.Parse(InvoicePriceBox.Text),
+                        float.Parse(MaterialCostBox.Text, CultureInfo.InvariantCulture),
+                        float.Parse(InvoicePriceBox.Text, CultureInfo.InvariantCulture),
                         DetailsBox.Text,
                         DateTime.Now.ToString("yyyy-MM-dd_HH:mm"),
                         createdDate);
@@ -255,13 +260,19 @@ namespace WEGutters
             // Details
             var details = (DetailsBox.Text ?? string.Empty).Trim();
             DetailsBox.Text = details;
-            //if (string.IsNullOrEmpty(details))
-            //{
-            //    errors.AppendLine("- Details cannot be blank.");
-            //}
+            if (string.IsNullOrEmpty(details))
+            {
+                errors.AppendLine("- Details cannot be blank.");
+            }
 
             validationError = errors.ToString().TrimEnd();
             return validationError.Length == 0;
+        }
+
+        private void CustomerComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ContactPhoneBox.Text = (CustomerComboBox.SelectedItem as Customer).ContactNumber;
+            AddressBox.Text = (CustomerComboBox.SelectedItem as Customer).Address;
         }
     }
 }

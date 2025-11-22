@@ -258,14 +258,14 @@
         <TextBlock Text="Customer Name:" Foreground="White"  Margin="0,5"/>
         <ComboBox Grid.Row="1" x:Name="CustomerComboBox" Style="{StaticResource ComboBoxStyle}" 
                   ItemsSource="{Binding CustomerCollection, RelativeSource={RelativeSource AncestorType=Window}}" 
-                  DisplayMemberPath="CustomerName" SelectedValuePath="CustomerID" 
-                  Margin="0,5"/>
+                  DisplayMemberPath="Name" SelectedValuePath="CustomerID" 
+                  Margin="0,5" SelectionChanged="CustomerComboBox_SelectionChanged"/>
 
-        <TextBlock Grid.Row="2" Text="Contact Phone:" Foreground="White"  Margin="0,5,0,0"/>
-        <TextBox Grid.Row="3" x:Name="ContactPhoneBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5" IsReadOnly="True"/>
+        <TextBlock x:Name="ContactPhoneLabel" Grid.Row="2" Text="Contact Phone:" Foreground="White"  Margin="0,5,0,0"/>
+        <TextBox Grid.Row="3" x:Name="ContactPhoneBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>
 
-        <TextBlock Grid.Row="4" Text="Address:" Foreground="White"  Margin="0,5,0,0"/>
-        <TextBox Grid.Row="5" x:Name="AddressBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5" IsReadOnly="True"/>
+        <TextBlock x:Name="AddressLabel" Grid.Row="4" Text="Address:" Foreground="White"  Margin="0,5,0,0"/>
+        <TextBox Grid.Row="5" x:Name="AddressBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>
 
         <TextBlock Grid.Row="6" Text="Service Details (i.e repair/cleaning):" Foreground="White"  Margin="0,5,0,0"/>
         <TextBox Grid.Row="7" x:Name="ServiceDetailsBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>

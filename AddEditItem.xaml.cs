@@ -289,10 +289,10 @@ namespace WEGutters
             // Item details
             var itemDetails = (ItemDetailsBox.Text ?? string.Empty).Trim();
             ItemDetailsBox.Text = itemDetails;
-            //if (string.IsNullOrEmpty(itemDetails))
-            //{
-            //    errors.AppendLine("- Item Details cannot be blank.");
-            //}
+            if (string.IsNullOrEmpty(itemDetails))
+            {
+                errors.AppendLine("- Item Details cannot be blank.");
+            }
 
             // Category
             string categoryName;

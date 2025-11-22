@@ -29,7 +29,7 @@ namespace WEGutters
             InvoicePrice = invoicePrice;
             Details = details;
             LastModified = lastModified;
-            CreatedDate = CreatedDate;
+            CreatedDate = createdDate;
         }
 
         public int ServiceID
@@ -84,38 +84,6 @@ namespace WEGutters
             get { return customer.ContactNumber; }
         }
 
-        //public string ContactNumber
-        //{
-        //    get { return contactNumber; }
-        //    set
-        //    {
-        //        if (!string.IsNullOrEmpty(value))
-        //        {
-        //            contactNumber = value;
-        //        }
-        //        else
-        //        {
-        //            throw new ArgumentException("Contact Number cannot be empty");
-        //        }
-        //    }
-        //}
-
-        //public string Address
-        //{
-        //    get { return address; }
-        //    set
-        //    {
-        //        if (!string.IsNullOrEmpty(value))
-        //        {
-        //            address = value;
-        //        }
-        //        else
-        //        {
-        //            throw new ArgumentException("Address cannot be empty");
-        //        }
-        //    }
-        //}
-
         public string ServiceDetails
         {
             get { return serviceDetails; }
@@ -146,6 +114,11 @@ namespace WEGutters
                     throw new ArgumentException("Service Category cannot be null");
                 }
             }
+        }
+
+        public string ServiceCategoryName
+        {
+            get { return serviceCategory.ServiceCategoryName; }
         }
 
         public float MaterialCost
