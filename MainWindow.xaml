@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="Western Edge Gutters - Inventory Management" Height="700" Width="1000"
+        Title="Western Edge Gutters - Inventory Management" Height="700" Width="1190"
         Background="#2D2D30" Icon="/app_icon.png">
-    
+
     <Window.Resources>
 
         <Style x:Key="NavigationRadioButtonStyle" TargetType="RadioButton">
@@ -223,11 +223,12 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         </Style>
 
-        
+
         <DataTemplate x:Key="EmptyBarTemplate">
             <Grid/>
         </DataTemplate>
 
+        <!--Dashboard Page--> 
         <DataTemplate x:Key="DashboardMainContentTemplate">
             <Grid>
                 <Grid.RowDefinitions>
@@ -251,7 +252,7 @@
                     </Border>
                     <Border Style="{StaticResource DashboardWidgetStyle}" Grid.Column="1">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="Total Sales" Foreground="#CCCCCC" FontSize="14" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Total Inventory Value" Foreground="#CCCCCC" FontSize="14" HorizontalAlignment="Center"/>
                             <TextBlock Text="0" Foreground="White" FontSize="72" FontWeight="Bold" HorizontalAlignment="Center" LineHeight="72"/>
                             <TextBlock Text="Top performing month:" Foreground="#CCCCCC" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
                             <TextBlock Text="0.00" Foreground="White" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
@@ -260,11 +261,14 @@
                 </Grid>
                 <Border Grid.Row="1" Background="#2D2D30" Margin="5,10,5,5" Padding="10" CornerRadius="3">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Periodic Reports (11/4/2025 - 11/4/2025)" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="Inventory Report" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -273,42 +277,42 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardWidgetStyle}">
+                    <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Text="Top Services" Foreground="White" FontSize="16"/>
-                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                            <TextBlock Text="Total Items" Foreground="White" FontSize="16"/>
+                            <TextBlock x:Name="DashboardTotalItems" Text="{Binding TotalItems, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource DashboardWidgetStyle}">
+                    <Border Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Text="Hourly Sales" Foreground="White" FontSize="16"/>
-                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                            <TextBlock Text="Items At Minimum" Foreground="White" FontSize="16"/>
+                            <TextBlock x:Name="DashboardItemsAtMinimum" Text="{Binding ItemsAtMinimum, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource DashboardWidgetStyle}">
+                    <Border Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Text="Total Sales (Amount)" Foreground="White" FontSize="16"/>
-                            <TextBlock Text="0" Foreground="White" FontSize="60" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                            <TextBlock Text="Items Below Minimum" Foreground="White" FontSize="16"/>
+                            <TextBlock x:Name="DashboardItemsBelowMinimum" Text="{Binding ItemsBelowMinimum, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource DashboardWidgetStyle}">
+                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Text="Top Services Groups" Foreground="White" FontSize="16"/>
-                            <TextBlock Text="Top selling services groups in selected period" Foreground="#CCCCCC" FontSize="12" TextWrapping="Wrap"/>
-                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                            <TextBlock Text="Total Inventory Value" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Sum of All Item Values (Qty * Purchase Cost)" Foreground="#CCCCCC" FontSize="12" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="DashboardTotalInventoryValue" Text="{Binding TotalInventoryValue, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource DashboardWidgetStyle}">
+                    <Border Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Text="Top Customers" Foreground="White" FontSize="16"/>
-                            <TextBlock Text="Lead customers in selected period (top 5)" Foreground="#CCCCCC" FontSize="12"/>
-                            <TextBlock Text="No data to display" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+                            <TextBlock Text="Total Projected Sales" Foreground="White" FontSize="16"/>
+                            <TextBlock Text="Sum of All Projected Sales (Qty * Sale Price)" Foreground="#CCCCCC" FontSize="12"/>
+                            <TextBlock x:Name="DashboardTotalProjectedSales" Text="{Binding TotalProjectedSales, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </Grid>
         </DataTemplate>
-        
+
         <!-- Services Page Top Bar -->
         <DataTemplate x:Key="ServicesTopBarTemplate">
             <WrapPanel>
@@ -328,8 +332,10 @@
         <DataTemplate x:Key="ServicesMainContentTemplate">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
-                
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
                 <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
                     <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
                         <ListBoxItem Style="{StaticResource ServiceListItemStyle}">
@@ -338,13 +344,15 @@
                                 <TextBlock Text="Services" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ListBoxItem>
-                        </ListBox>
+                    </ListBox>
                 </Border>
 
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
-                    
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
                     <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -361,7 +369,7 @@
                             <TextBlock Grid.Column="4" Text="Services count: 0" Foreground="#CCCCCC" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0"/>
                         </Grid>
                     </Border>
-                    
+
                     <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="100" Foreground="#444444" HorizontalAlignment="Center"/>
                         <TextBlock Text="Selected group contains no services" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10,0,0"/>
@@ -382,19 +390,27 @@
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit product" Tag="Resources/edit_product_icon.png" Click="Stock_EditItem_Click"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete product" Tag="Resources/delete_product_icon.png" Click="Stock_DeleteItem_Click"/>
 
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="Stock_Refresh_Click"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png" Click="Stock_Print_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="Stock_Refresh_Click"/> 
+
+                <!--<Button Style="{StaticResource TopActionButtonStyle}" Content="Print" Tag="Resources/print_icon.png" Click="Stock_Print_Click"/>-->
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Save as PDF" Tag="Resources/pdf_icon.png" Click="Stock_SaveAsPdf_Click"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Excel" Tag="Resources/excel_icon.png" Click="Stock_Excel_Click"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Inventory count report" Tag="Resources/report_icon.png" Click="Stock_InventoryReport_Click"/>
+                <!--<Button Style="{StaticResource TopActionButtonStyle}" Content="Inventory count report" Tag="Resources/report_icon.png" Click="Stock_InventoryReport_Click"/>-->
             </WrapPanel>
         </DataTemplate>
 
         <!-- Stock Page -->
         <DataTemplate x:Key="StockMainContentTemplate">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!--
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Background="#252526" Margin="0,0,5,0">
                     <ListBox Background="Transparent" BorderThickness="0" SelectedIndex="0" MinWidth="150">
@@ -406,20 +422,33 @@
                         </ListBoxItem>
                         </ListBox>
                 </Border>
+                -->
 
-                <DataGrid x:Name="StockDataGrid" Grid.Column="1" ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
+                    <Grid>
+                        <TextBox x:Name="StockSearchBox" Text="Search Stock" Style="{StaticResource SearchBoxStyle}" Padding="5,5,30,5" KeyUp="StockSearchBox_KeyUp"/>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#CCCCCC" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                    </Grid>
+                </Border>
+
+                <DataGrid x:Name="StockDataGrid" Grid.Row="1"  ItemsSource="{Binding InventoryList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                          ScrollViewer.CanContentScroll="True"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Visible">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="Auto"/>
-                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="3*"/>
+                        <DataGridTextColumn Header="Item Details" Binding="{Binding ItemDetails}" Width="SizeToHeader"/>
                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto"/>
-                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="2*"/>
-                        <DataGridTextColumn Header="Purchase Cost" Binding="{Binding PurchaseCost}" Width="Auto"/>
-                        <DataGridTextColumn Header="Sale Price" Binding="{Binding SalePrice}" Width="Auto"/>
-                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto"/>
-                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="Auto"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="Auto"/>
+                        <DataGridTextColumn Header="Purchase Cost ($)" Binding="{Binding PurchaseCost}" Width="Auto"/>
+                        <DataGridTextColumn Header="Item Value ($)" Binding="{Binding ItemValue}" Width="Auto"/>
+                        <DataGridTextColumn Header="Sale Price ($)" Binding="{Binding SalePrice}" Width="Auto"/>
+                        <DataGridTextColumn Header="Projected Sale ($)" Binding="{Binding ProjectedSale}" Width="Auto"/>
                         <DataGridTextColumn Header="Qty per bundle" Binding="{Binding QtyPerBundle}" Width="Auto"/>
-                        <DataGridTextColumn Header="Minimum Count" Binding="{Binding MinCount}" Width="Auto"/>
-                        <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="2*"/>
+                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="Auto"/>
+                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="Auto"/>
+                        <DataGridTextColumn Header="Min Count" Binding="{Binding MinQuantity}" Width="Auto"/>
+                        <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="Auto"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
@@ -432,7 +461,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="280"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -482,7 +511,7 @@
                         </ListBoxItem>
                     </ListBox>
                 </Grid>
-                
+
                 <Border Grid.Column="1" Background="#252526" Padding="10">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
@@ -505,10 +534,10 @@
         <!-- Customers Page Top Bar -->
         <DataTemplate x:Key="CustomersTopBarTemplate">
             <WrapPanel>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Add" Tag="Resources/add_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit" Tag="Resources/edit_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete" Tag="Resources/delete_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Import" Tag="Resources/import_icon.png"/>
                 <Button Style="{StaticResource TopActionButtonStyle}" Content="Export" Tag="Resources/export_icon.png"/>
             </WrapPanel>
@@ -518,7 +547,9 @@
         <DataTemplate x:Key="CustomersMainContentTemplate">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Border Grid.Row="0" Background="#252526" Padding="8" Margin="0,0,0,5">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -595,7 +626,7 @@
                 <StackPanel>
                     <TextBlock Text="Set access level for predefined operations" Foreground="White" FontSize="16"/>
                     <TextBlock Text="Select access level for each action in order to set required user permissions." Foreground="#CCCCCC" Margin="0,5,0,0"/>
-                    
+
                     <Border Background="#007ACC" Padding="10" Margin="0,20,0,0">
                         <TextBlock Text="General" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
                     </Border>
@@ -610,15 +641,18 @@
                             </ItemsControl.Items>
                         </ItemsControl>
                     </Border>
-                    
-                    </StackPanel>
+
+                </StackPanel>
             </ScrollViewer>
         </DataTemplate>
 
         <DataTemplate x:Key="UsersAndSecurityMainContentTemplate">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
                 <TabControl x:Name="InternalTabControl" Style="{StaticResource DarkTabControlStyle}" Margin="0,0,0,5">
                     <TabItem Header="Users" Style="{StaticResource DarkTabItemStyle}"/>
@@ -639,7 +673,7 @@
                         </ContentControl.Style>
                     </ContentControl>
                 </Border>
-                
+
                 <ContentControl Grid.Row="2" x:Name="MainContentSwitcher">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
@@ -657,11 +691,15 @@
         </DataTemplate>
 
     </Window.Resources>
-    
-    
+
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/> <ColumnDefinition Width="*"/>   </Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="446*"/>
+            <ColumnDefinition Width="441*"/>
+            <ColumnDefinition Width="103*"/>
+        </Grid.ColumnDefinitions>
 
         <Border Background="#252526" Grid.Column="0">
             <StackPanel>
@@ -675,7 +713,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbServices" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -684,7 +722,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbStock" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -693,7 +731,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbReporting" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -702,7 +740,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbCustomers" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -711,7 +749,7 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                
+
                 <RadioButton x:Name="rbUsersAndSecurity" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal">
@@ -725,9 +763,12 @@
         </Border>
 
         <!-- Content Control Top Bar -->
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Grid.ColumnSpan="3">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    <RowDefinition Height="Auto"/> </Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
             <Border Background="#2D2D30" Padding="5" MinHeight="68">
                 <ContentControl>
@@ -748,7 +789,7 @@
                                 <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
                                     <Setter Property="ContentTemplate" Value="{StaticResource StockTopBarTemplate}"/>
                                 </DataTrigger>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
@@ -777,7 +818,7 @@
                                 <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
                                     <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>
                                 </DataTrigger>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>
@@ -789,7 +830,7 @@
                         <Style TargetType="ContentControl">
                             <Setter Property="ContentTemplate" Value="{StaticResource EmptyBarTemplate}"/>
                             <Style.Triggers>
-                                </Style.Triggers>
+                            </Style.Triggers>
                         </Style>
                     </ContentControl.Style>
                 </ContentControl>

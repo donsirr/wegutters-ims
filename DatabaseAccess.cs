@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using WEGutters.ConstructorClasses;
 
 namespace WEGutters
 {
@@ -77,7 +79,6 @@ namespace WEGutters
                                                         s.SKU_ID, 
                                                         s.SKU_Code,
                                                         b.ItemName,
-                                                        b.ItemDetails,
                                                         c.CategoryID, 
                                                         c.CategoryName,
                                                         b.Unit,
@@ -94,16 +95,15 @@ namespace WEGutters
                             var sku = new SKU(reader.GetString(2)) // SKUCode
                             { SKUID = reader.GetInt32(1) }; // SKUID since it's not in the constructor
 
-                            var category = new Category(reader.GetString(6)) // CategoryName
-                            { CategoryID = reader.GetInt32(5) }; // CategoryID since it's not in the constructor
+                            var category = new Category(reader.GetString(5)) // CategoryName
+                            { CategoryID = reader.GetInt32(4) }; // CategoryID since it's not in the constructor
 
                             var baseItem = new BaseItem(
                                 sku, // SKUCode
                                 reader.GetString(3), // ItemName
-                                reader.GetString(4), // ItemDetails
                                 category, // CategoryName
-                                reader.GetString(7), // Unit
-                                reader.GetInt32(8)  // QuantityPerBundle
+                                reader.GetString(6), // Unit
+                                reader.GetInt32(7)  // QuantityPerBundle
                             )
                             { ItemID = reader.GetInt32(0) }; // ItemID since it's not in the constructor
 
@@ -131,10 +131,10 @@ namespace WEGutters
                                                         i.SalePrice,
                                                         i.LastModified,
                                                         i.CreatedDate,
+                                                        i.ItemDetails,
 
                                                         b.ItemID,
                                                         b.ItemName,
-                                                        b.ItemDetails,
                                                         b.Unit,
                                                         b.QuantityPerBundle,
 
@@ -162,16 +162,16 @@ namespace WEGutters
 
                             var baseItem = new BaseItem(
                                 sku, // SKUCode
-                                reader.GetString(8), // ItemName
-                                reader.GetString(9), // ItemDetails
+                                reader.GetString(9), // ItemName
                                 category, // CategoryName
                                 reader.GetString(10), // Unit
                                 reader.GetInt32(11)  // QuantityPerBundle
                             )
-                            { ItemID = reader.GetInt32(7) }; // ItemID since it's not in the constructor
+                            { ItemID = reader.GetInt32(8) }; // ItemID since it's not in the constructor
 
                             var inventoryItem = new InventoryItem(
                                 baseItem,
+                                reader.GetString(7), // ItemDetails (from Inventory)
                                 reader.GetInt32(1), // Quantity
                                 reader.GetInt32(2), // MinimumQuantity
                                 reader.GetFloat(3), // PurchaseCost
@@ -206,10 +206,10 @@ namespace WEGutters
                                                         i.SalePrice,
                                                         i.LastModified,
                                                         i.CreatedDate,
+                                                        i.ItemDetails,
 
                                                         b.ItemID,
                                                         b.ItemName,
-                                                        b.ItemDetails,
                                                         b.Unit,
                                                         b.QuantityPerBundle,
 
@@ -237,16 +237,16 @@ namespace WEGutters
 
                             var baseItem = new BaseItem(
                                 sku, // SKUCode
-                                reader.GetString(8), // ItemName
-                                reader.GetString(9), // ItemDetails
+                                reader.GetString(9), // ItemName
                                 category, // CategoryName
                                 reader.GetString(10), // Unit
                                 reader.GetInt32(11)  // QuantityPerBundle
                             )
-                            { ItemID = reader.GetInt32(7) }; // ItemID since it's not in the constructor
+                            { ItemID = reader.GetInt32(8) }; // ItemID since it's not in the constructor
 
                             var inventoryItem = new InventoryItem(
                                 baseItem,
+                                reader.GetString(7), // ItemDetails
                                 reader.GetInt32(1), // Quantity
                                 reader.GetInt32(2), // MinimumQuantity
                                 reader.GetFloat(3), // PurchaseCost
@@ -306,17 +306,16 @@ namespace WEGutters
             }
         }
 
-        public static int AddBaseItem(SKU sku, string itemName, string itemDetails, Category category, string unit, int quantityPerBundle)
+        public static int AddBaseItem(SKU sku, string itemName, Category category, string unit, int quantityPerBundle)
         {
 
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("INSERT INTO BaseItems (SKU_ID, ItemName, ItemDetails, CategoryID, Unit, QuantityPerBundle) VALUES (@SKU_ID, @ItemName, @ItemDetails, @CategoryID, @Unit, @QuantityPerBundle);", conn))
+                using (var cmd = new SQLiteCommand("INSERT INTO BaseItems (SKU_ID, ItemName, CategoryID, Unit, QuantityPerBundle) VALUES (@SKU_ID, @ItemName, @CategoryID, @Unit, @QuantityPerBundle);", conn))
                 {
                     cmd.Parameters.AddWithValue("@SKU_ID", GetSKUID(sku));
                     cmd.Parameters.AddWithValue("@ItemName", itemName);
-                    cmd.Parameters.AddWithValue("@ItemDetails", itemDetails);
                     cmd.Parameters.AddWithValue("@CategoryID", GetCategoryID(category));
                     cmd.Parameters.AddWithValue("@Unit", unit);
                     cmd.Parameters.AddWithValue("@QuantityPerBundle", quantityPerBundle);
@@ -330,14 +329,15 @@ namespace WEGutters
             }
         }
 
-        public static int AddInventoryItem(BaseItem item, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
+        public static int AddInventoryItem(BaseItem item, string itemDetails, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified, string createdDate)
         {
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("INSERT INTO Inventory (ItemID, Quantity, MinimumQuantity, PurchaseCost, SalePrice, LastModified, CreatedDate) VALUES (@ItemID, @Quantity, @MinimumQuantity, @PurchaseCost, @SalePrice, @LastModified, @CreatedDate);", conn))
+                using (var cmd = new SQLiteCommand("INSERT INTO Inventory (ItemID, ItemDetails, Quantity, MinimumQuantity, PurchaseCost, SalePrice, LastModified, CreatedDate) VALUES (@ItemID, @ItemDetails, @Quantity, @MinimumQuantity, @PurchaseCost, @SalePrice, @LastModified, @CreatedDate);", conn))
                 {
                     cmd.Parameters.AddWithValue("@ItemID", GetBaseItemID(item));
+                    cmd.Parameters.AddWithValue("@ItemDetails", itemDetails);
                     cmd.Parameters.AddWithValue("@Quantity", quantity);
                     cmd.Parameters.AddWithValue("@MinimumQuantity", minQuantity);
                     cmd.Parameters.AddWithValue("@PurchaseCost", purchaseCost);
@@ -411,7 +411,7 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE Category SET (CategoryName) = @newCategoryName WHERE CategoryID = @id;", conn))
+                using (var cmd = new SQLiteCommand("UPDATE Category SET CategoryName = @newCategoryName WHERE CategoryID = @id;", conn))
                 {
                     cmd.Parameters.AddWithValue("@newCategoryName", categoryName);
                     cmd.Parameters.AddWithValue("@id", id);
@@ -426,7 +426,7 @@ namespace WEGutters
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE SKU SET (SKU_Code) = @newSKUCode WHERE SKU_ID = @id;", conn))
+                using (var cmd = new SQLiteCommand("UPDATE SKU SET SKU_Code = @newSKUCode WHERE SKU_ID = @id;", conn))
                 {
                     cmd.Parameters.AddWithValue("@newSKUCode", skuCode);
                     cmd.Parameters.AddWithValue("@id", id);
@@ -435,16 +435,22 @@ namespace WEGutters
             }
         }
 
-        public static void EditBaseItem(BaseItem item, string itemName, string itemDetails, Category category, string unit, int quantityPerBundle)
+        public static void EditBaseItem(BaseItem item, string itemName, Category category, string unit, int quantityPerBundle)
         {
             int id = GetBaseItemID(item);
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE BaseItems SET (ItemName, ItemDetails, CategoryID, Unit, QuantityPerBundle) = (@newItemName, @newItemDetails, @newCategoryID, @newUnit, @newQuantityPerBundle) WHERE ItemID = @id;", conn))
+                using (var cmd = new SQLiteCommand("""
+                    UPDATE BaseItems SET 
+                    ItemName = @newItemName, 
+                    CategoryID = @newCategoryID,
+                    Unit = @newUnit, 
+                    QuantityPerBundle = @newQuantityPerBundle
+                    WHERE ItemID = @id;
+                    """, conn))
                 {
                     cmd.Parameters.AddWithValue("@newItemName", itemName);
-                    cmd.Parameters.AddWithValue("@newItemDetails", itemDetails);
                     cmd.Parameters.AddWithValue("@newCategoryID", GetCategoryID(category));
                     cmd.Parameters.AddWithValue("@newUnit", unit);
                     cmd.Parameters.AddWithValue("@newQuantityPerBundle", quantityPerBundle);
@@ -454,14 +460,26 @@ namespace WEGutters
             }
         }
 
-        public static void EditInventoryItem(InventoryItem inventoryItem, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified)
+        public static void EditInventoryItem(InventoryItem inventoryItem, string itemDetails, int quantity, int minQuantity, float purchaseCost, float salePrice, string lastModified)
         {
             int id = inventoryItem.InventoryId; // the original item reference to get the ID we edit
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
-                using (var cmd = new SQLiteCommand("UPDATE Inventory SET (Quantity, MinimumQuantity, PurchaseCost, SalePrice, LastModified) = (@newQuantity, @newMinQuantity, @newPurchaseCost, @newSalePrice, @newLastModified) WHERE InventoryID = @id;", conn))
+                using (var cmd = new SQLiteCommand("""
+                    UPDATE Inventory SET
+                    ItemID = @itemID,
+                    ItemDetails = @newItemDetails,
+                    Quantity = @newQuantity,
+                    MinimumQuantity = @newMinQuantity,
+                    PurchaseCost = @newPurchaseCost,
+                    SalePrice = @newSalePrice,
+                    LastModified = @newLastModified 
+                    WHERE InventoryID = @id;
+                    """, conn))               
                 {
+                    cmd.Parameters.AddWithValue("@itemID", GetBaseItemID(inventoryItem.Item));
+                    cmd.Parameters.AddWithValue("@newItemDetails", itemDetails);
                     cmd.Parameters.AddWithValue("@newQuantity", quantity);
                     cmd.Parameters.AddWithValue("@newMinQuantity", minQuantity);
                     cmd.Parameters.AddWithValue("@newPurchaseCost", purchaseCost);
@@ -566,40 +584,53 @@ namespace WEGutters
                 }
             }
         }
-
-        public static bool BaseItemExists(SKU sku, string itemName, string itemDetails, Category category, string unit, int qtyPerBundle)
+        public static bool BaseItemExists(string itemName)
         {
-            int skuID = GetSKUID(sku);
-            int categoryID = GetCategoryID(category);
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand("""
                                                   SELECT COUNT(*) FROM BaseItems 
-                                                  WHERE SKU_ID = @SKUID
-                                                  AND ItemName = @ItemName
-                                                  AND ItemDetails = @ItemDetails
-                                                  AND CategoryID = @CategoryID
-                                                  AND Unit = @Unit
-                                                  AND QuantityPerBundle = @QtyPerBundle;
+                                                  WHERE ItemName = @ItemName
                                                   """, conn))
                 {
-                    cmd.Parameters.AddWithValue("@SKUID", skuID);
                     cmd.Parameters.AddWithValue("@ItemName", itemName);
-                    cmd.Parameters.AddWithValue("@ItemDetails", itemDetails);
-                    cmd.Parameters.AddWithValue("@CategoryID", categoryID);
-                    cmd.Parameters.AddWithValue("@Unit", unit);
-                    cmd.Parameters.AddWithValue("@QtyPerBundle", qtyPerBundle);
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
                     return count > 0;
                 }
             }
+
+            //public static bool BaseItemExists(SKU sku, string itemName, Category category, string unit, int qtyPerBundle)
+            //{
+            //    int skuID = GetSKUID(sku);
+            //    int categoryID = GetCategoryID(category);
+            //    using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
+            //    {
+            //        conn.Open();
+            //        using (var cmd = new SQLiteCommand("""
+            //                                          SELECT COUNT(*) FROM BaseItems 
+            //                                          WHERE SKU_ID = @SKUID
+            //                                          AND ItemName = @ItemName
+            //                                          AND CategoryID = @CategoryID
+            //                                          AND Unit = @Unit
+            //                                          AND QuantityPerBundle = @QtyPerBundle;
+            //                                          """, conn))
+            //        {
+            //            cmd.Parameters.AddWithValue("@SKUID", skuID);
+            //            cmd.Parameters.AddWithValue("@ItemName", itemName);
+            //            cmd.Parameters.AddWithValue("@CategoryID", categoryID);
+            //            cmd.Parameters.AddWithValue("@Unit", unit);
+            //            cmd.Parameters.AddWithValue("@QtyPerBundle", qtyPerBundle);
+            //            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            //            return count > 0;
+            //        }
+            //    }
         } 
 
         #endregion
-        public static ObservableCollection<InventoryItem> SearchInventory(string search)
+        public static ObservableCollection<InventoryItemDisplay> SearchInventory(string search)
         {
-            var inventoryItemsCollection = new ObservableCollection<InventoryItem>();
+            var inventoryItemsDisplayCollection = new ObservableCollection<InventoryItemDisplay>();
             using (var conn = new SQLiteConnection("Data Source=WesternEdgeDB.db;Version=3;"))
             {
 
@@ -614,10 +645,10 @@ namespace WEGutters
                                                         i.SalePrice,
                                                         i.LastModified,
                                                         i.CreatedDate,
+                                                        i.ItemDetails,
 
                                                         b.ItemID,
                                                         b.ItemName,
-                                                        b.ItemDetails,
                                                         b.Unit,
                                                         b.QuantityPerBundle,
 
@@ -631,9 +662,11 @@ namespace WEGutters
                                                     JOIN BaseItems b ON i.ItemID = b.ItemID
                                                     JOIN SKU s ON b.SKU_ID = s.SKU_ID
                                                     JOIN Category c ON b.CategoryID = c.CategoryID
-                                                    WHERE b.ItemName LIKE @Search OR s.SKUCode LIKE @Search OR c.CategoryName LIKE @Search;
+                                                    WHERE b.ItemName LIKE @Search OR s.SKU_Code LIKE @Search OR c.CategoryName LIKE @Search;
                                                     """, conn))
                 {
+                    cmd.Parameters.AddWithValue("@Search", "%" + search + "%");
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -646,16 +679,16 @@ namespace WEGutters
 
                             var baseItem = new BaseItem(
                                 sku, // SKUCode
-                                reader.GetString(8), // ItemName
-                                reader.GetString(9), // ItemDetails
+                                reader.GetString(9), // ItemName
                                 category, // CategoryName
                                 reader.GetString(10), // Unit
                                 reader.GetInt32(11)  // QuantityPerBundle
                             )
-                            { ItemID = reader.GetInt32(7) }; // ItemID since it's not in the constructor
+                            { ItemID = reader.GetInt32(8) }; // ItemID since it's not in the constructor
 
                             var inventoryItem = new InventoryItem(
                                 baseItem,
+                                reader.GetString(7), // ItemDetails
                                 reader.GetInt32(1), // Quantity
                                 reader.GetInt32(2), // MinimumQuantity
                                 reader.GetFloat(3), // PurchaseCost
@@ -664,10 +697,13 @@ namespace WEGutters
                                 reader.GetString(6)  // CreatedDate
                             )
                             { InventoryId = reader.GetInt32(0) }; // InventoryID since it's not in the constructor
+
+                            inventoryItemsDisplayCollection.Add(inventoryItem.ToDisplay());
                         }
+
                     }
                 }
-                return inventoryItemsCollection;
+                return inventoryItemsDisplayCollection;
             }
         }
 

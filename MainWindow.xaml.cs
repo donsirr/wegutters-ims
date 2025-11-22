@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,15 +17,104 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WEGutters.ConstructorClasses;
 
 namespace WEGutters
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public ObservableCollection<InventoryItemDisplay> InventoryList { get; set; }
+
+        private ObservableCollection<InventoryItemDisplay> _inventoryList;
+
+        public ObservableCollection<InventoryItemDisplay> InventoryList
+        {
+            get => _inventoryList;
+            set
+            {
+                // remove old collectionchange event subscriptions so when we = it to a new instance it wont duplicate
+                if (_inventoryList != null)
+                    _inventoryList.CollectionChanged -= InventoryList_CollectionChanged;
+
+                _inventoryList = value;
+
+                // subscribe  to new collection events, allows it to change on add, remove, edit, not just on =
+                if (_inventoryList != null)
+                    _inventoryList.CollectionChanged += InventoryList_CollectionChanged;
+
+                OnPropertyChanged(nameof(InventoryList));
+                UpdateDashboard();
+            }
+
+        }
+        private void InventoryList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateDashboard();
+        }
+
+        private int _totalItems;
+        public int TotalItems
+        {
+            get => _totalItems;
+            set
+            {
+                _totalItems = value;
+                OnPropertyChanged(nameof(TotalItems));
+            }
+        }
+
+        private int _ItemsAtMinimumAtMinimum;
+        public int ItemsAtMinimum
+        {
+            get => _ItemsAtMinimumAtMinimum;
+            set
+            {
+                _ItemsAtMinimumAtMinimum = value;
+                OnPropertyChanged(nameof(ItemsAtMinimum));
+            }
+        }
+
+        private int _ItemsBelowMinimum;
+        public int ItemsBelowMinimum
+        {
+            get => _ItemsBelowMinimum;
+            set
+            {
+                _ItemsBelowMinimum = value;
+                OnPropertyChanged(nameof(ItemsBelowMinimum));
+            }
+        }
+
+        private string _totalInventoryValue;
+        public string TotalInventoryValue
+        {
+            get => _totalInventoryValue;
+            set
+            {
+                _totalInventoryValue = value;
+                OnPropertyChanged(nameof(TotalInventoryValue));
+            }
+        }
+
+        private string _totalProjectedSales;
+        public string TotalProjectedSales
+        {
+            get => _totalProjectedSales;
+            set
+            {
+                _totalProjectedSales = value;
+                OnPropertyChanged(nameof(TotalProjectedSales));
+            }
+        }
+
+        // notifies when property changes so InventoryList = ... works.
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public MainWindow()
         {            
@@ -34,7 +127,9 @@ namespace WEGutters
         // Source - https://stackoverflow.com/a
         // Posted by Aleksey
         // Retrieved 2025-11-09, License - CC BY-SA 3.0
-        public T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
+
+        // used to get the DataGrid from the container
+        private T FindElementByName<T>(FrameworkElement element, string sChildName) where T : FrameworkElement
         {
             T childElement = null;
             var nChildCount = VisualTreeHelper.GetChildrenCount(element);
@@ -59,6 +154,15 @@ namespace WEGutters
             return childElement;
         }
 
+        private void UpdateDashboard() 
+        { 
+            TotalItems = InventoryList.Count;
+            ItemsAtMinimum = InventoryList.Count(item => item.Quantity == item.MinQuantity);
+            ItemsBelowMinimum = InventoryList.Count(item => item.Quantity < item.MinQuantity);
+            TotalInventoryValue = InventoryList.Sum(item => item.PurchaseCost * item.Quantity).ToString("$0.00");
+            TotalProjectedSales = InventoryList.Sum(item => item.SalePrice * item.Quantity).ToString("$0.00");
+        }
+
         #region Stock Button Functionality
 
         private void Stock_NewItem_Click(object sender, RoutedEventArgs e)
@@ -78,61 +182,16 @@ namespace WEGutters
             {
                 // If they saved, add item to the data grid
                 InventoryList.Add(addItemWindow.ReturnItem.ToDisplay());
-                addInventoryItem(addItemWindow.ReturnItem);
+                addItemWindow.ReturnItem.InventoryId = DatabaseAccess.AddInventoryItem(addItemWindow.ReturnItem.Item,
+                                                                                       addItemWindow.ReturnItem.ItemDetails,
+                                                                                       addItemWindow.ReturnItem.Quantity,
+                                                                                       addItemWindow.ReturnItem.MinQuantity, 
+                                                                                       addItemWindow.ReturnItem.PurchaseCost,
+                                                                                       addItemWindow.ReturnItem.SalePrice,
+                                                                                       addItemWindow.ReturnItem.LastModified,
+                                                                                       addItemWindow.ReturnItem.CreatedDate);
             }
         }
-
-        #region addMethods 
-
-        private void addNewSKU(SKU sku)
-        {
-            // add SKU to database and set its ID because AddSKU in database returns the ID 
-            sku.SKUID = DatabaseAccess.AddSKU(sku.SKUCode);
-        }
-
-        private void addNewCategory(Category category)
-        {
-            // add Category to database and set its ID because AddCategory in database returns the ID 
-            category.CategoryID = DatabaseAccess.AddCategory(category.CategoryName);
-        }
-
-        private void addBaseItem(BaseItem baseItem)
-        {
-
-            // ensure SKU exists in database else add it
-            if (baseItem.SKUProperty.SKUID == 0 && !(DatabaseAccess.SKUExists(baseItem.SKUProperty.SKUCode)) )
-            {
-                addNewSKU(baseItem.SKUProperty);
-            }
-            // ensure Category exists in database else add it
-            if (baseItem.Category.CategoryID == 0 && !(DatabaseAccess.CategoryExists(baseItem.Category.CategoryName)) )
-            {
-                addNewCategory(baseItem.Category);
-            }
-
-            // add BaseItem to database and set its ID because AddBaseItem in database returns the ID 
-            baseItem.ItemID = DatabaseAccess.AddBaseItem(baseItem.SKUProperty, baseItem.ItemName, baseItem.ItemDetails, baseItem.Category,baseItem.Unit, baseItem.QuantityPerBundle);
-        }
-
-        private void addInventoryItem(InventoryItem inventoryItem)
-        {
-            // ensure BaseItem exists in database else add it
-            SKU sku = inventoryItem.Item.SKUProperty;
-            string itemName = inventoryItem.Item.ItemName;
-            string itemDetails = inventoryItem.Item.ItemDetails;
-            Category category = inventoryItem.Item.Category;
-            string unit = inventoryItem.Item.Unit;
-            int qtyPerBundle = inventoryItem.Item.QuantityPerBundle;
-
-            if (inventoryItem.Item.ItemID == 0 && !(DatabaseAccess.BaseItemExists(sku, itemName, itemDetails, category, unit, qtyPerBundle)) )
-            {
-                addBaseItem(inventoryItem.Item);
-            }
-            // add InventoryItem to database and set its ID because AddInventoryItem in database returns the ID 
-            inventoryItem.InventoryId = DatabaseAccess.AddInventoryItem(inventoryItem.Item, inventoryItem.Quantity, inventoryItem.MinQuantity, inventoryItem.PurchaseCost, inventoryItem.SalePrice, inventoryItem.LastModified, inventoryItem.CreatedDate);
-        }
-
-        #endregion
 
         private void Stock_EditItem_Click(object sender, RoutedEventArgs e)
         {
@@ -152,7 +211,7 @@ namespace WEGutters
                 // Check if the user clicked "Save"
                 if (result == true)
                 {
-                    // If they saved, add item to the data grid
+                    // If they saved, update the data grid entry with the edited item
                     int selectedIndex = dataGrid.SelectedIndex;
                     InventoryList[selectedIndex] = addItemWindow.ReturnItem.ToDisplay();
 
@@ -163,10 +222,20 @@ namespace WEGutters
                     string newLastModified = addItemWindow.ReturnItem.LastModified;
 
                     InventoryList[selectedIndex].Quantity = newQuantity;
-                    DatabaseAccess.EditInventoryItem(selectedItem.itemInstance, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+                    
+                    SKU sku = addItemWindow.ReturnItem.Item.SKUProperty;
+                    string itemName = addItemWindow.ReturnItem.Item.ItemName;
+                    string itemDetails = addItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
+                    Category category = addItemWindow.ReturnItem.Item.Category;
+                    string unit = addItemWindow.ReturnItem.Item.Unit;
+                    int qtyPerBundle = addItemWindow.ReturnItem.Item.QuantityPerBundle;
+
+
+                    // Persist inventory changes using the edited InventoryItem returned by the dialog
+                    DatabaseAccess.EditInventoryItem(addItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
-            MessageBox.Show("Edit Item... (functionality to be added)");
+
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
         {
@@ -179,15 +248,12 @@ namespace WEGutters
                 InventoryList.Remove(selectedItem);
                 DatabaseAccess.DeleteInventoryItem(selectedItem.itemInstance);
             }
-            MessageBox.Show("Delete Item... (functionality to be added)");
         }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Stock_Refresh_Click(object sender, RoutedEventArgs e)
         {
             InventoryList = DatabaseAccess.GetInventoryItemDisplays();
-
-            MessageBox.Show("Refresh Stock Data... (functionality to be added)");
         }
 
         // This method will handle printing the DataGrid
@@ -202,19 +268,55 @@ namespace WEGutters
         // This method will save the grid as a PDF
         private void Stock_SaveAsPdf_Click(object sender, RoutedEventArgs e)
         {
-            // PDF generation requires a third-party library (a "NuGet package")
-            // such as "PdfSharp" or "iTextSharp".
+            try
+            {
+                // Call the ExportToPDF to generate PDF
+                bool exported = ExportToPDF.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Save as PDF... (requires PDF library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // ExportWithSaveDialog already wrote file; optionally inform user
+                    MessageBox.Show("PDF exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export PDF:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will save the grid as an Excel file
         private void Stock_Excel_Click(object sender, RoutedEventArgs e)
         {
-            // Excel generation requires a third-party library (a "NuGet package")
-            // such as "EPPlus".
+            try
+            {
+                bool exported = ExportToExcel.ExportWithSaveDialog(this, InventoryList);
 
-            MessageBox.Show("Export to Excel... (requires Excel library)");
+                if (!exported)
+                {
+                    // Distinguish empty list vs cancelled by user
+                    if (InventoryList == null || InventoryList.Count == 0)
+                        MessageBox.Show("Nothing to export.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else
+                        MessageBox.Show("Export cancelled.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Excel exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to export Excel:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // This method will open the specific "Inventory Count Report"
@@ -225,7 +327,22 @@ namespace WEGutters
 
             MessageBox.Show("Open Inventory Count Report... (functionality to be added)");
         }
+        private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
+                {
+                    var textBox = sender as TextBox;
+                    string searchText = textBox.Text;
+                    if (e.Key == Key.Enter)
+                    {
+                        if (searchText.IsNullOrEmpty())
+                        {
+                            InventoryList = DatabaseAccess.GetInventoryItemDisplays();
+                            textBox.Text = "Search Stock";
+                            return;
+                        }
 
+                        InventoryList = DatabaseAccess.SearchInventory(searchText);
+                    }
+                }
         #endregion
 
         #region Services Button Functionality
@@ -329,6 +446,8 @@ namespace WEGutters
             MessageBox.Show("Sorting... (functionality to be added)");
         }
 
+
         #endregion
+
     }
 }
