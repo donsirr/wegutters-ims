@@ -37,26 +37,23 @@ namespace WEGutters
             get => _customerList;
             set
             {
-                // commented out as we dont use customers for the dashboard currently
-                //if (_customerList != null)
-                //    _customerList.CollectionChange -= CustomerList_CollectionChanged;
+                if (_customerList != null)
+                    _customerList.CollectionChanged -= CustomerList_CollectionChanged;
 
-                //_customerList = value;
-
-                //is (_customerList != null)
-                //_customerList.CollectionChanged += CustomerList_CollectionChanged;
-
-                //OnPropertyChanged(nameof(CustomerList));
-                //UpdateStockDashboard();
                 _customerList = value;
+
+                if (_customerList != null)
+                    _customerList.CollectionChanged += CustomerList_CollectionChanged;
+
                 OnPropertyChanged(nameof(CustomerList));
+                UpdateServiceDashboard();
             }
         }
 
-        //private void ServiceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        //{
-        //    UpdateStockDashboard();
-        //}
+        private void CustomerList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateServiceDashboard();
+        }
         #endregion
 
 
@@ -404,23 +401,44 @@ namespace WEGutters
                     StockDBAccess.EditInventoryItem(editItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
                 }
             }
+            else 
+            {
+                if (InventoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item to edit.", "Edit Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no items to edit.", "Edit Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
 
         }
         private void Stock_DeleteItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show(
-                "Are you sure you want to delete this item?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
+            if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
             {
-                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "StockDataGrid");
-                if (dataGrid?.SelectedItem is InventoryItemDisplay selectedItem)
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this item?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
                 {
                     InventoryList.Remove(selectedItem);
                     StockDBAccess.DeleteInventoryItem(selectedItem.itemInstance);
+                }
+            }
+            else
+            {
+                if (InventoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item to delete.", "Delete Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no items to delete.", "Delete Item", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -581,25 +599,49 @@ namespace WEGutters
 
                     // Persist inventory changes using the edited InventoryItem returned by the dialog
                     ServiceDBAccess.EditService(editServiceWindow.ReturnService, newCustomer, newServiceDetails, newServiceCategory, newMaterialCost, newInvoicePrice, newDetails, newLastModified);
+                    dataGrid.Items.Refresh();
+                    UpdateServiceDashboard();
+                }
+            }
+            else
+            {
+                if (ServiceList.Count > 0)
+                {
+                    MessageBox.Show("Please select a service to edit.", "Edit Service", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no services to edit.", "Edit Service", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         private void Services_DeleteService_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show(
-                "Are you sure you want to delete this item?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceDataGrid");
+            if (dataGrid?.SelectedItem is Service selectedService)
             {
-                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceDataGrid");
-                if (dataGrid?.SelectedItem is Service selectedService)
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this service?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
                 {
                     ServiceList.Remove(selectedService);
                     ServiceDBAccess.DeleteService(selectedService);
+                }
+            }
+            else
+            {
+                if (ServiceList.Count > 0)
+                {
+                    MessageBox.Show("Please select a service to delete.", "Delete Service", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no services to delete.", "Delete Service", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -684,6 +726,7 @@ namespace WEGutters
             // 1. Edit Item.
             // 2. Update the Stock DataGrid's ItemsSource.
             var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "CustomerDataGrid");
+
             if (dataGrid?.SelectedItem is Customer selectedCustomer)
             {
                 AddEditCustomer editCustomerWindow = new AddEditCustomer(false, selectedCustomer);
@@ -708,28 +751,55 @@ namespace WEGutters
                     string newLastModified = editCustomerWindow.ReturnCustomer.LastModified;
 
                     // Persist inventory changes using the edited Customer returned by the dialog
+                   
                     CustomerDBAccess.EditCustomer(editCustomerWindow.ReturnCustomer, newName, newAddress, newContactNumber, newEmail, newComments, newLastModified);
+                    dataGrid.Items.Refresh();
+                    ServiceList = ServiceDBAccess.GetServices();
+                    UpdateServiceDashboard();
                 }
             }
+            else 
+            {
+                if (CustomerList.Count > 0)
+                {
+                    MessageBox.Show("Please select a customer to edit.", "Edit Customer", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no customers to edit.", "Edit Customer", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
 
         }
         private void Customer_DeleteCustomer_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show(
-                "Are you sure you want to delete this item?",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "CustomerDataGrid");
+            if (dataGrid?.SelectedItem is Customer selectedCustomer)
             {
-                var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "CustomerDataGrid");
-                if (dataGrid?.SelectedItem is Customer selectedCustomer)
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this customer?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
                 {
                     CustomerList.Remove(selectedCustomer);
                     CustomerDBAccess.DeleteCustomer(selectedCustomer);
                 }
             }
+            else
+            {
+                if (CustomerList.Count > 0)
+                {
+                    MessageBox.Show("Please select a customer to delete.", "Delete Customer", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no customers to delete.", "Delete Customer", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
         }
 
         // This method will be called to refresh the data in the Stock DataGrid

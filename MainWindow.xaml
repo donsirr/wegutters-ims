@@ -271,7 +271,7 @@
                             <TextBlock Text="Customer" Foreground="#CCCCCC" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
                             <TextBlock x:Name="DashboardInvoiceCustomer" Text="{Binding HighestInvoiceCustomer, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                             <TextBlock Text="Service Category" Foreground="#CCCCCC" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                            <TextBlock x:Name="DashboardInvoiceCategory" Text="{Binding HighestInvoiceCustomer, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="DashboardInvoiceCategory" Text="{Binding HighestInvoiceCategory, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </Grid>

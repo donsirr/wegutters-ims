@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WEGutters")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+62c56846983340ced773e9416181cc71b9fee37b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07f2e8d538e261c2dbce408cc8e17af39315bb40")]
 [assembly: System.Reflection.AssemblyProductAttribute("WEGutters")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WEGutters")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

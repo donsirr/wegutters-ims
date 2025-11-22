@@ -259,7 +259,8 @@
         <ComboBox Grid.Row="1" x:Name="CustomerComboBox" Style="{StaticResource ComboBoxStyle}" 
                   ItemsSource="{Binding CustomerCollection, RelativeSource={RelativeSource AncestorType=Window}}" 
                   DisplayMemberPath="Name" SelectedValuePath="CustomerID" 
-                  Margin="0,5" SelectionChanged="CustomerComboBox_SelectionChanged"/>
+                  Margin="0,5" SelectionChanged="CustomerComboBox_SelectionChanged"
+                  IsEditable="False"/>
 
         <TextBlock x:Name="ContactPhoneLabel" Grid.Row="2" Text="Contact Phone:" Foreground="White"  Margin="0,5,0,0"/>
         <TextBox Grid.Row="3" x:Name="ContactPhoneBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>
