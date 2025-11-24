@@ -13,10 +13,19 @@
     <Compile Update="AddEditService.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="AddEditUser.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="LoginWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ManageBaseItems.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="ManageListWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ManageSingleDetail.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

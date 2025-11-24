@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace WEGutters.ConstructorClasses
+namespace WEGutters.UserClasses
 {
     public class SKU
     {

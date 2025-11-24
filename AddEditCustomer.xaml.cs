@@ -14,6 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WEGutters.CustomerClasses;
+using WEGutters.DatabaseAccess;
 
 namespace WEGutters
 {
@@ -160,7 +162,7 @@ namespace WEGutters
                     // Validate the number
                     if (!phoneUtil.IsValidNumber(number))
                     {
-                        errors.AppendLine("- Contact Number is not a valid Canadian number.");
+                        errors.AppendLine("- Contact Number is not a valid number.");
                     }
                 }
                 catch (NumberParseException)

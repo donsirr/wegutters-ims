@@ -5,7 +5,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WEGutters.ConstructorClasses;
+using WEGutters.UserClasses;
 using static System.Net.Mime.MediaTypeNames;
 // Alias QuestPDF colors to avoid ambiguity with System.Windows.Media.Colors
 using QPdfColors = QuestPDF.Helpers.Colors;

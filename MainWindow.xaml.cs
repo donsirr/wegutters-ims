@@ -1,8 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
-using ScottPlot;
-using ScottPlot.Plottables;
-using ScottPlot.WPF;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +18,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WEGutters.ConstructorClasses;
+using WEGutters.CustomerClasses;
+using WEGutters.DatabaseAccess;
+using WEGutters.ServiceClasses;
+using WEGutters.UserClasses;
 
 namespace WEGutters
 {
@@ -29,6 +30,53 @@ namespace WEGutters
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+
+        #region presets lists
+        private ObservableCollection<BaseItem> _baseItemList;
+        public ObservableCollection<BaseItem> BaseItemList
+        {
+            get => _baseItemList;
+            set
+            {
+                _baseItemList = value;
+                OnPropertyChanged(nameof(BaseItemList));
+            }
+        }
+
+        private ObservableCollection<Category> _itemCategoryList;
+        public ObservableCollection<Category> ItemCategoryList
+        {
+            get => _itemCategoryList;
+            set
+            {
+                _itemCategoryList = value;
+                OnPropertyChanged(nameof(ItemCategoryList));
+            }
+        }
+
+        private ObservableCollection<SKU> _itemSKUList;
+        public ObservableCollection<SKU> ItemSKUList
+        {
+            get => _itemSKUList;
+            set
+            {
+                _itemSKUList = value;
+                OnPropertyChanged(nameof(ItemSKUList));
+            }
+        }
+
+        private ObservableCollection<ServiceCategory> _serviceCategoryList;
+        public ObservableCollection<ServiceCategory> ServiceCategoryList
+        {
+            get => _serviceCategoryList;
+            set
+            {
+                _serviceCategoryList = value;
+                OnPropertyChanged(nameof(ServiceCategoryList));
+            }
+        }
+        #endregion
+
         #region observable collection for customers
         private ObservableCollection<Customer> _customerList;
 
@@ -56,7 +104,6 @@ namespace WEGutters
         }
         #endregion
 
-
         #region observable collection for services
         private ObservableCollection<Service> _serviceList;
 
@@ -66,12 +113,12 @@ namespace WEGutters
             set
             {
                 if (_serviceList != null)
-                        _serviceList.CollectionChanged -= ServiceList_CollectionChanged;
+                    _serviceList.CollectionChanged -= ServiceList_CollectionChanged;
 
                 _serviceList = value;
 
                 if (_serviceList != null)
-                _serviceList.CollectionChanged += ServiceList_CollectionChanged;
+                    _serviceList.CollectionChanged += ServiceList_CollectionChanged;
 
                 OnPropertyChanged(nameof(ServiceList));
                 UpdateServiceDashboard();
@@ -165,7 +212,8 @@ namespace WEGutters
         }
         #endregion
 
-        // Observable Collection for Users
+        #region observable collection for users
+
         private ObservableCollection<User> _userList;
         public ObservableCollection<User> UserList
         {
@@ -177,7 +225,8 @@ namespace WEGutters
             }
         }
 
-        // observable collection for stock datagrid
+        #endregion
+
         #region stock datagrid collection
         private ObservableCollection<InventoryItemDisplay> _inventoryList;
 
@@ -271,8 +320,9 @@ namespace WEGutters
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public MainWindow()
-        {            
+        public MainWindow(string accessLevel)
+        {
+            
             InitializeComponent();
 
             //parang di na need toh? since may public na sa taas
@@ -282,8 +332,23 @@ namespace WEGutters
             CustomerList = CustomerDBAccess.GetCustomers();
             ServiceList = ServiceDBAccess.GetServices();
             UserList = UserDBAccess.GetUsers();
+            BaseItemList = StockDBAccess.GetBaseItems();
+            ItemCategoryList = StockDBAccess.GetCategories();
+            ItemSKUList = StockDBAccess.GetSKUs();
+            ServiceCategoryList = ServiceDBAccess.GetServiceCategories();
 
-            this.DataContext = this;
+            if (accessLevel != "Admin")
+            {
+                rbUsersAndSecurity.Visibility = Visibility.Hidden;
+            } 
+            else
+            {
+                rbUsersAndSecurity.Visibility= Visibility.Visible;
+            }
+
+                this.DataContext = this;
+
+
         }
 
         // Source - https://stackoverflow.com/a
@@ -316,8 +381,8 @@ namespace WEGutters
             return childElement;
         }
 
-        private void UpdateStockDashboard() 
-        { 
+        private void UpdateStockDashboard()
+        {
             TotalItems = InventoryList.Count;
             ItemsAtMinimum = InventoryList.Count(item => item.Quantity == item.MinQuantity);
             ItemsBelowMinimum = InventoryList.Count(item => item.Quantity < item.MinQuantity);
@@ -327,10 +392,6 @@ namespace WEGutters
 
         private void UpdateServiceDashboard()
         {
-            var dashboardPlot = FindElementByName<WpfPlot>(ContentControlPanel, "DashboardPopularServices");
-            // update barPlot
-
-
             TotalServices = ServiceList?.Count() ?? 0;
             HighestMaterialCost = ServiceList?.MaxBy(s => s.MaterialCost)?.MaterialCost.ToString("$0.00") ?? "$0.00";
             HighestMaterialCustomer = ServiceList?.MaxBy(s => s.MaterialCost)?.Customer.Name ?? "N/A";
@@ -339,58 +400,6 @@ namespace WEGutters
             HighestInvoice = ServiceList?.MaxBy(s => s.InvoicePrice)?.InvoicePrice.ToString("$0.00") ?? "$0.00";
             HighestInvoiceCustomer = ServiceList?.MaxBy(s => s.InvoicePrice)?.Customer.Name ?? "N/A";
             HighestInvoiceCategory = ServiceList?.MaxBy(s => s.InvoicePrice)?.ServiceCategory.ServiceCategoryName ?? "N/A";
-
-            if (dashboardPlot != null && ServiceList != null)
-            {
-                dashboardPlot.Plot.Clear();
-
-                // Group services by Category and count them
-                var grouped = ServiceList
-                    .GroupBy(s => s.ServiceCategory?.ServiceCategoryName ?? "Uncategorized")
-                    .Select(g => new { Category = g.Key, Count = g.Count() })
-                    .OrderByDescending(x => x.Count)
-                    .Take(5) // Top 5
-                    .ToArray();
-
-                if (grouped.Any())
-                {
-                    double[] values = grouped.Select(x => (double)x.Count).ToArray();
-                    string[] labels = grouped.Select(x => x.Category).ToArray();
-
-                    // Create Bar Chart
-                    var bars = dashboardPlot.Plot.Add.Bars(values);
-
-                    // 1. FIX COLOR AMBIGUITY: Explicitly use ScottPlot.Color
-                    bars.Color = ScottPlot.Color.FromHex("#007ACC");
-
-                    // Manually set ticks
-                    ScottPlot.Tick[] ticks = new ScottPlot.Tick[labels.Length];
-                    for (int i = 0; i < labels.Length; i++)
-                    {
-                        ticks[i] = new ScottPlot.Tick(i, labels[i]);
-                    }
-                    dashboardPlot.Plot.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.NumericManual(ticks);
-
-                    // 2. FIX OBSOLETE STYLE METHODS (ScottPlot 5 Syntax)
-
-                    // Set Background Colors
-                    var darkBg = ScottPlot.Color.FromHex("#252526");
-                    dashboardPlot.Plot.FigureBackground.Color = darkBg;
-                    dashboardPlot.Plot.DataBackground.Color = darkBg;
-
-                    // Set Axis Colors (Frame, Ticks, Labels)
-                    var axisColor = ScottPlot.Color.FromHex("#CCCCCC");
-                    dashboardPlot.Plot.Axes.Color(axisColor);
-
-                    // Set Grid Colors
-                    var gridColor = ScottPlot.Color.FromHex("#444444");
-                    dashboardPlot.Plot.Grid.MajorLineColor = gridColor;
-                    // Optional: Hide grid if preferred
-                    // dashboardPlot.Plot.HideGrid();
-
-                    dashboardPlot.Refresh();
-                }
-            }
         }
 
         #region Stock Button Functionality
@@ -415,11 +424,15 @@ namespace WEGutters
                 addItemWindow.ReturnItem.InventoryId = StockDBAccess.AddInventoryItem(addItemWindow.ReturnItem.Item,
                                                                                        addItemWindow.ReturnItem.ItemDetails,
                                                                                        addItemWindow.ReturnItem.Quantity,
-                                                                                       addItemWindow.ReturnItem.MinQuantity, 
+                                                                                       addItemWindow.ReturnItem.MinQuantity,
                                                                                        addItemWindow.ReturnItem.PurchaseCost,
                                                                                        addItemWindow.ReturnItem.SalePrice,
                                                                                        addItemWindow.ReturnItem.LastModified,
                                                                                        addItemWindow.ReturnItem.CreatedDate);
+
+                BaseItemList = StockDBAccess.GetBaseItems();
+                ItemCategoryList = StockDBAccess.GetCategories();
+                ItemSKUList = StockDBAccess.GetSKUs();
             }
         }
 
@@ -452,7 +465,7 @@ namespace WEGutters
                     string newLastModified = editItemWindow.ReturnItem.LastModified;
 
                     InventoryList[selectedIndex].Quantity = newQuantity;
-                    
+
                     SKU sku = editItemWindow.ReturnItem.Item.SKUProperty;
                     string itemName = editItemWindow.ReturnItem.Item.ItemName;
                     string itemDetails = editItemWindow.ReturnItem.ItemDetails; // now on InventoryItem
@@ -463,9 +476,13 @@ namespace WEGutters
 
                     // Persist inventory changes using the edited InventoryItem returned by the dialog
                     StockDBAccess.EditInventoryItem(editItemWindow.ReturnItem, itemDetails, newQuantity, newMinQuantity, newPurchaseCost, newSalePrice, newLastModified);
+
+                    BaseItemList = StockDBAccess.GetBaseItems();
+                    ItemCategoryList = StockDBAccess.GetCategories();
+                    ItemSKUList = StockDBAccess.GetSKUs();
                 }
             }
-            else 
+            else
             {
                 if (InventoryList.Count > 0)
                 {
@@ -585,21 +602,21 @@ namespace WEGutters
             MessageBox.Show("Open Inventory Count Report... (functionality to be added)");
         }
         private void StockSearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            string searchText = textBox.Text;
+            if (e.Key == Key.Enter)
+            {
+                if (searchText.IsNullOrEmpty())
                 {
-                    var textBox = sender as TextBox;
-                    string searchText = textBox.Text;
-                    if (e.Key == Key.Enter)
-                    {
-                        if (searchText.IsNullOrEmpty())
-                        {
-                            InventoryList = StockDBAccess.GetInventoryItemDisplays();
-                            textBox.Text = "Search Stock";
-                            return;
-                        }
-
-                        InventoryList = StockDBAccess.SearchInventory(searchText);
-                    }
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                    textBox.Text = "Search Stock";
+                    return;
                 }
+
+                InventoryList = StockDBAccess.SearchInventory(searchText);
+            }
+        }
         #endregion
 
         #region Services Button Functionality
@@ -611,6 +628,12 @@ namespace WEGutters
 
         private void Services_NewService_Click(object sender, RoutedEventArgs e)
         {
+            if (CustomerList.Count < 1)
+            {
+                MessageBox.Show("Please input customers before adding new services.", "Edit Service", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             AddEditServiceWindow addServiceWindow = new AddEditServiceWindow(true);
             addServiceWindow.Owner = this; // Set this window as the owner
             addServiceWindow.Title = "Add New Service";
@@ -631,6 +654,8 @@ namespace WEGutters
                                                                                        addServiceWindow.ReturnService.Details,
                                                                                        addServiceWindow.ReturnService.LastModified,
                                                                                        addServiceWindow.ReturnService.CreatedDate);
+
+                ServiceCategoryList = ServiceDBAccess.GetServiceCategories();
             }
         }
 
@@ -665,6 +690,8 @@ namespace WEGutters
                     ServiceDBAccess.EditService(editServiceWindow.ReturnService, newCustomer, newServiceDetails, newServiceCategory, newMaterialCost, newInvoicePrice, newDetails, newLastModified);
                     dataGrid.Items.Refresh();
                     UpdateServiceDashboard();
+
+                    ServiceCategoryList = ServiceDBAccess.GetServiceCategories();
                 }
             }
             else
@@ -710,26 +737,6 @@ namespace WEGutters
             }
         }
 
-        private void Services_Print_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Print... (functionality to be added)");
-        }
-
-        private void Services_SaveAsPdf_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Save as PDF... (functionality to be added)");
-        }
-
-        private void Services_PriceTags_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Price Tags... (functionality to be added)");
-        }
-
-        private void Services_Sorting_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Sorting... (functionality to be added)");
-        }
-
         private void ServiceSearchBox_KeyUp(object sender, KeyEventArgs e)
         {
             var textBox = sender as TextBox;
@@ -749,13 +756,6 @@ namespace WEGutters
         #endregion
 
         #region Customers Button Functionality
-
-        //Customer_NewCustomer_Click
-        //Customer_EditCustomer_Click
-        //Customer_DeleteCustomer_Click
-        //Customer_Refresh_Click
-        //Customer_SaveAsPdf_Click
-        //Customer_Excel_Click
 
         private void Customer_NewCustomer_Click(object sender, RoutedEventArgs e)
         {
@@ -815,14 +815,14 @@ namespace WEGutters
                     string newLastModified = editCustomerWindow.ReturnCustomer.LastModified;
 
                     // Persist inventory changes using the edited Customer returned by the dialog
-                   
+
                     CustomerDBAccess.EditCustomer(editCustomerWindow.ReturnCustomer, newName, newAddress, newContactNumber, newEmail, newComments, newLastModified);
                     dataGrid.Items.Refresh();
                     ServiceList = ServiceDBAccess.GetServices();
                     UpdateServiceDashboard();
                 }
             }
-            else 
+            else
             {
                 if (CustomerList.Count > 0)
                 {
@@ -850,6 +850,9 @@ namespace WEGutters
                 {
                     CustomerList.Remove(selectedCustomer);
                     CustomerDBAccess.DeleteCustomer(selectedCustomer);
+                    dataGrid.Items.Refresh();
+                    ServiceList = ServiceDBAccess.GetServices();
+                    UpdateServiceDashboard();
                 }
             }
             else
@@ -863,69 +866,12 @@ namespace WEGutters
                     MessageBox.Show("Currently no customers to delete.", "Delete Customer", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
         }
 
         // This method will be called to refresh the data in the Stock DataGrid
         private void Customer_Refresh_Click(object sender, RoutedEventArgs e)
         {
             CustomerList = CustomerDBAccess.GetCustomers();
-        }
-
-        // This method will save the grid as a PDF
-        private void Customer_SaveAsPdf_Click(object sender, RoutedEventArgs e)
-        {
-            //make new class for pdf export for customers
-            //try
-            //{
-            //    // Call the ExportToPDF to generate PDF
-            //    bool exported = ExportToPDF.ExportWithSaveDialog(this, InventoryList);
-
-            //    if (!exported)
-            //    {
-            //        // Distinguish empty list vs cancelled by user
-            //        if (InventoryList == null || InventoryList.Count == 0)
-            //            MessageBox.Show("Nothing to export.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
-            //        else
-            //            MessageBox.Show("Export cancelled.", "Export to PDF", MessageBoxButton.OK, MessageBoxImage.Information);
-            //    }
-            //    else
-            //    {
-            //        // ExportWithSaveDialog already wrote file; optionally inform user
-            //        MessageBox.Show("PDF exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Failed to export PDF:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
-        }
-
-        // This method will save the grid as an Excel file
-        private void Customer_Excel_Click(object sender, RoutedEventArgs e)
-        {
-            //make new class for excel export for customers
-            //try
-            //{
-            //    bool exported = ExportToExcel.ExportWithSaveDialog(this, InventoryList);
-
-            //    if (!exported)
-            //    {
-            //        // Distinguish empty list vs cancelled by user
-            //        if (InventoryList == null || InventoryList.Count == 0)
-            //            MessageBox.Show("Nothing to export.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
-            //        else
-            //            MessageBox.Show("Export cancelled.", "Export to Excel", MessageBoxButton.OK, MessageBoxImage.Information);
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("Excel exported.", "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Failed to export Excel:\n" + ex.Message, "Export error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
         }
         private void CustomerSearchBox_KeyUp(object sender, KeyEventArgs e)
         {
@@ -946,17 +892,520 @@ namespace WEGutters
 
         #endregion
 
+        #region Users Button Functionality
         private void Users_Refresh_Click(object sender, RoutedEventArgs e)
         {
             UserList = UserDBAccess.GetUsers();
         }
 
-        private void Users_Add_Click(object sender, RoutedEventArgs e)
+        private void Users_NewUser_Click(object sender, RoutedEventArgs e)
         {
-            // Use a simple input box or a new Window for User details. 
-            // For speed, I'll reuse the AddEditItem pattern logic but simplified.
-            // In a real app, create a dedicated AddUserWindow.xaml
-            MessageBox.Show("Feature to add user via dialog coming next. Use DB Access directly for now.");
+            AddEditUser addUser = new AddEditUser(true);
+            addUser.Owner = this; // Set this window as the owner
+            addUser.Title = "Add New User";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addUser.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true)
+            {
+                // If they saved, add user to the data grid
+                UserList.Add(addUser.ReturnUser);
+                addUser.ReturnUser.UserID = UserDBAccess.AddUser(addUser.ReturnUser);
+            }
+        }
+
+        private void User_EditUser_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Add logic here to:
+            // 1. Edit Item.
+            // 2. Update the Stock DataGrid's ItemsSource.
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "UserDataGrid");
+
+            if (dataGrid?.SelectedItem is User selectedUser)
+            {
+                AddEditUser editUser = new AddEditUser(false, selectedUser);
+                editUser.Owner = this; // Set this window as the owner
+                editUser.Title = "Edit User";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = editUser.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true)
+                {
+                    // If they saved, update the data grid entry with the edited customer
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    UserList[selectedIndex] = editUser.ReturnUser;
+
+                    string newFirstName = editUser.ReturnUser.FirstName;
+                    string newLastName = editUser.ReturnUser.LastName;
+                    string newUsername = editUser.ReturnUser.Username;
+                    string newEmail = editUser.ReturnUser.Email;
+                    string newPassword = editUser.ReturnUser.PasswordHash;
+                    string newAccessLevel = editUser.ReturnUser.AccessLevel;
+
+                    // Persist inventory changes using the edited Customer returned by the dialog
+
+                    UserDBAccess.EditUser(editUser.ReturnUser);
+                    dataGrid.Items.Refresh();
+                }
+            }
+            else
+            {
+                if (UserList.Count > 0)
+                {
+                    MessageBox.Show("Please select a user to edit.", "Edit User", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no user to edit.", "Edit User", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void User_DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "UserDataGrid");
+            if (dataGrid?.SelectedItem is User selectedUser)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this user?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    UserList.Remove(selectedUser);
+                    UserDBAccess.DeleteUser(selectedUser);
+                }
+            }
+            else
+            {
+                if (CustomerList.Count > 0)
+                {
+                    MessageBox.Show("Please select a user to delete.", "Delete User", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no users to delete.", "Delete User", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Presets Button Functionality
+
+        // Base Item
+        private void NewBaseItem_Click(object sender, RoutedEventArgs e)
+        {
+            ManageBaseItems addBaseItem = new ManageBaseItems(true);
+            addBaseItem.Owner = this; // Set this window as the owner
+            addBaseItem.Title = "Add New Base Item";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addBaseItem.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true)
+            {
+                // If they saved, add user to the data grid
+                BaseItemList.Add(addBaseItem.ReturnBase);
+                addBaseItem.ReturnBase.ItemID = StockDBAccess.AddBaseItem(addBaseItem.ReturnBase.SKUProperty,
+                                                                          addBaseItem.ReturnBase.ItemName,
+                                                                          addBaseItem.ReturnBase.Category,
+                                                                          addBaseItem.ReturnBase.Unit,
+                                                                          addBaseItem.ReturnBase.QuantityPerBundle);
+                ItemCategoryList = StockDBAccess.GetCategories();
+                ItemSKUList = StockDBAccess.GetSKUs();
+            }
+        }
+
+        private void EditBaseItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "BaseItemGrid");
+
+            if (dataGrid?.SelectedItem is BaseItem selectedBaseItem)
+            {
+                ManageBaseItems editBaseItem = new ManageBaseItems(false, selectedBaseItem);
+                editBaseItem.Owner = this; // Set this window as the owner
+                editBaseItem.Title = "Edit Customer";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = editBaseItem.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true)
+                {
+                    // If they saved, update the data grid entry with the edited base item
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    BaseItemList[selectedIndex] = editBaseItem.ReturnBase;
+
+                    SKU newSKU = editBaseItem.ReturnBase.SKUProperty;
+                    string newItemName = editBaseItem.ReturnBase.ItemName;
+                    Category newCategory = editBaseItem.ReturnBase.Category;
+                    string newUnit = editBaseItem.ReturnBase.Unit;
+                    int newQtyPerBundle = editBaseItem.ReturnBase.QuantityPerBundle;
+
+                    // Persist inventory changes using the edited Customer returned by the dialog
+
+                    StockDBAccess.EditBaseItem(editBaseItem.ReturnBase, newSKU, newItemName, newCategory, newUnit, newQtyPerBundle);
+                    dataGrid.Items.Refresh();
+
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                    ItemCategoryList = StockDBAccess.GetCategories();
+                    ItemSKUList = StockDBAccess.GetSKUs();
+                }
+            }
+            else
+            {
+                if (BaseItemList.Count > 0)
+                {
+                    MessageBox.Show("Please select a base item to edit.", "Edit Base Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no base item to edit.", "Edit Base Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteBaseItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "BaseItemGrid");
+            if (dataGrid?.SelectedItem is BaseItem selectedBaseItem)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this base item?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    BaseItemList.Remove(selectedBaseItem);
+                    StockDBAccess.DeleteBaseItem(selectedBaseItem);
+                    dataGrid.Items.Refresh();
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                }
+            }
+            else
+            {
+                if (BaseItemList.Count > 0)
+                {
+                    MessageBox.Show("Please select a base item to delete.", "Delete Base Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no base item to delete.", "Delete Base Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void RefreshBaseItem_Click(object sender, RoutedEventArgs e)
+        {
+            BaseItemList = StockDBAccess.GetBaseItems();
+        }
+
+        // Item Category
+        private void NewItemCategory_Click(object sender, RoutedEventArgs e)
+        {
+            ManageSingleDetail addItemCategory = new ManageSingleDetail(true, null, "Category Name");
+            addItemCategory.Owner = this; // Set this window as the owner
+            addItemCategory.Title = "Add New Item Category";
+
+            // ShowDialog() opens the window and pauses code here until the user closes it
+            bool? result = addItemCategory.ShowDialog();
+
+            // Check if the user clicked "Save"
+            if (result == true && (addItemCategory.ReturnBase is Category category))
+            {
+                // If they saved, add user to the data grid
+                ItemCategoryList.Add(category);
+                category.CategoryID = StockDBAccess.AddCategory(category.CategoryName);
+            }
+        }
+
+        private void EditItemCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ItemCategoryGrid");
+            
+            if (dataGrid?.SelectedItem is Category selectedItemCategory)
+            {
+                ManageSingleDetail editItemCategory = new ManageSingleDetail(false, selectedItemCategory);
+                editItemCategory.Owner = this; // Set this window as the owner
+                editItemCategory.Title = "Edit Item Category";
+
+                // ShowDialog() opens the window and pauses code here until the user closes it
+                bool? result = editItemCategory.ShowDialog();
+
+                // Check if the user clicked "Save"
+                if (result == true && (editItemCategory.ReturnBase is Category category))
+                {
+                    // If they saved, update the data grid entry with the edited base item
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    ItemCategoryList[selectedIndex] = category;
+
+                    string newItemCategoryName = category.CategoryName;
+
+                    // Persist inventory changes using the edited Customer returned by the dialog
+
+                    StockDBAccess.EditCategory(newItemCategoryName, category);
+                    dataGrid.Items.Refresh();
+                    BaseItemList = StockDBAccess.GetBaseItems();
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                }
+            }
+            else
+            {
+                if (ItemCategoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item category to edit.", "Edit Item Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no item categories to edit.", "Edit Item Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteItemCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ItemCategoryGrid");
+            if (dataGrid?.SelectedItem is Category selectedItemCategory)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this base item?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    ItemCategoryList.Remove(selectedItemCategory);
+                    StockDBAccess.DeleteCategory(selectedItemCategory);
+                    dataGrid.Items.Refresh();
+                    BaseItemList = StockDBAccess.GetBaseItems();
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                }
+            }
+            else
+            {
+                if (ItemCategoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item category to delete.", "Delete Item Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no item categories to delete.", "Delete Item Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void RefreshItemCategory_Click(object sender, RoutedEventArgs e)
+        {
+            ItemCategoryList = StockDBAccess.GetCategories();
+        }
+
+        // Item SKU
+        private void NewItemSKU_Click(object sender, RoutedEventArgs e)
+        {
+            ManageSingleDetail addSKU = new ManageSingleDetail(true, null, "SKU Name");
+            addSKU.Owner = this;
+            addSKU.Title = "Add New Item SKU";
+
+            bool? result = addSKU.ShowDialog();
+
+            if (result == true && (addSKU.ReturnBase is SKU sku))
+            {
+                ItemSKUList.Add(sku);
+                sku.SKUID = StockDBAccess.AddSKU(sku.SKUCode);
+            }
+        }
+
+        private void EditItemSKU_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ItemSKUGrid");
+
+            if (dataGrid?.SelectedItem is SKU selectedSKU)
+            {
+                ManageSingleDetail editSKU = new ManageSingleDetail(false, selectedSKU);
+                editSKU.Owner = this;
+                editSKU.Title = "Edit Item SKU";
+
+                bool? result = editSKU.ShowDialog();
+
+                if (result == true && (editSKU.ReturnBase is SKU sku))
+                {
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    ItemSKUList[selectedIndex] = sku;
+
+                    string newCode = sku.SKUCode;
+
+                    StockDBAccess.EditSKU(newCode, sku);
+                    dataGrid.Items.Refresh();
+                    BaseItemList = StockDBAccess.GetBaseItems();
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                }
+            }
+            else
+            {
+                if (ItemSKUList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item SKU to edit.", "Edit SKU", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no item SKUs to edit.", "Edit SKU", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteItemSKU_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ItemSKUGrid");
+
+            if (dataGrid?.SelectedItem is SKU selectedSKU)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this SKU?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    ItemSKUList.Remove(selectedSKU);
+                    StockDBAccess.DeleteSKU(selectedSKU);
+                    dataGrid.Items.Refresh();
+                    BaseItemList = StockDBAccess.GetBaseItems();
+                    InventoryList = StockDBAccess.GetInventoryItemDisplays();
+                }
+            }
+            else
+            {
+                if (ItemSKUList.Count > 0)
+                {
+                    MessageBox.Show("Please select an item SKU to delete.", "Delete SKU", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no SKUs to delete.", "Delete SKU", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void RefreshItemSKU_Click(object sender, RoutedEventArgs e)
+        {
+            ItemSKUList = StockDBAccess.GetSKUs();
+        }
+
+        // Service Category
+        private void NewServiceCategory_Click(object sender, RoutedEventArgs e)
+        {
+            ManageSingleDetail addServiceCategory = new ManageSingleDetail(true, null, "Service Category Name");
+            addServiceCategory.Owner = this;
+            addServiceCategory.Title = "Add New Service Category";
+
+            bool? result = addServiceCategory.ShowDialog();
+
+            if (result == true && (addServiceCategory.ReturnBase is ServiceCategory category))
+            {
+                ServiceCategoryList.Add(category);
+                category.ServiceCategoryID = ServiceDBAccess.AddServiceCategory(category.ServiceCategoryName);
+                ServiceList = ServiceDBAccess.GetServices();
+                UpdateServiceDashboard();
+            }
+        }
+
+        private void EditServiceCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceCategoryGrid");
+
+            if (dataGrid?.SelectedItem is ServiceCategory selectedCategory)
+            {
+                ManageSingleDetail editServiceCategory = new ManageSingleDetail(false, selectedCategory);
+                editServiceCategory.Owner = this;
+                editServiceCategory.Title = "Edit Service Category";
+
+                bool? result = editServiceCategory.ShowDialog();
+
+                if (result == true && (editServiceCategory.ReturnBase is ServiceCategory category))
+                {
+                    int selectedIndex = dataGrid.SelectedIndex;
+                    ServiceCategoryList[selectedIndex] = category;
+
+                    string newName = category.ServiceCategoryName;
+
+                    ServiceDBAccess.EditServiceCategory(newName, category);
+                    dataGrid.Items.Refresh();
+                    ServiceList = ServiceDBAccess.GetServices();
+                    UpdateServiceDashboard();
+                }
+            }
+            else
+            {
+                if (ServiceCategoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select a service category to edit.", "Edit Service Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no service categories to edit.", "Edit Service Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void RemoveServiceCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "ServiceCategoryGrid");
+
+            if (dataGrid?.SelectedItem is ServiceCategory selectedCategory)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Are you sure you want to delete this service category?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    ServiceCategoryList.Remove(selectedCategory);
+                    ServiceDBAccess.DeleteServiceCategory(selectedCategory);
+                    dataGrid.Items.Refresh();
+                    ServiceList = ServiceDBAccess.GetServices();
+                    UpdateServiceDashboard();
+                }
+            }
+            else
+            {
+                if (ServiceCategoryList.Count > 0)
+                {
+                    MessageBox.Show("Please select a service category to delete.", "Delete Service Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Currently no service categories to delete.", "Delete Service Category", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+
+        private void RefreshServiceCategory_Click(object sender, RoutedEventArgs e)
+        {
+            ServiceCategoryList = ServiceDBAccess.GetServiceCategories();
+        }
+
+        #endregion
+
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show login window
+            var login = new LoginWindow();
+            login.Show();
+
+            // Close this window (the main window)
+            this.Close();
         }
     }
 }

@@ -4,10 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:ScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
         mc:Ignorable="d"
         Title="Western Edge Gutters - Inventory Management" Height="700" Width="1190"
-        Background="#2D2D30" Icon="/app_icon.png">
+        Background="#2D2D30" Icon="/Resources/app_icon.png">
 
     <Window.Resources>
 
@@ -239,19 +238,14 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource DashboardWidgetStyle}" Grid.Column="0">
+                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource DashboardWidgetStyle}">
                         <StackPanel>
-                            <TextBlock Foreground="White" FontSize="18"> Total Ongoing Services: <Run x:Name="DashboardTotalServices" Text="{Binding TotalServices, RelativeSource={RelativeSource AncestorType=Window}}"/> </TextBlock>
-                            <TextBlock Text="Most Popular Services" Foreground="#CCCCCC" FontSize="12" Margin="0,5,0,0"/>
-                            <Border Height="150" Background="#333333" Margin="0,10,0,0" CornerRadius="3">
-                            <!--<TextBlock Text="[Chart Placeholder]" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
-                                <ScottPlot:WpfPlot x:Name="DashboardPopularServices" Margin="5"/>
-                                
-                            </Border>
+                            <TextBlock Text="Total Ongoing Services:" Foreground="White" FontSize="16"/>
+                            <TextBlock x:Name="DashboardTotalServices" Text="{Binding TotalServices, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="White" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource DashboardWidgetStyle}" Grid.Column="1">
@@ -606,11 +600,11 @@
         <!-- Users & Security -->
         <DataTemplate x:Key="UsersTopBarTemplate">
             <WrapPanel>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Add user" Tag="Resources/new_product_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit" Tag="Resources/edit_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete" Tag="Resources/delete_icon.png"/>
-                <Button Style="{StaticResource TopActionButtonStyle}" Content="Reset password" Tag="Resources/reset_password_icon.png"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New User" Tag="Resources/new_product_icon.png" Click="Users_NewUser_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit User" Tag="Resources/edit_icon.png" Click="User_EditUser_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete User" Tag="Resources/delete_icon.png" Click="User_DeleteUser_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="Users_Refresh_Click"/>
+                <!--<Button Style="{StaticResource TopActionButtonStyle}" Content="Reset password" Tag="Resources/reset_password_icon.png"/>-->
             </WrapPanel>
         </DataTemplate>
 
@@ -637,13 +631,19 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UsersTabContentTemplate">
-            <DataGrid>
+            <DataGrid x:Name="UserDataGrid" ItemsSource="{Binding UserList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                          ScrollViewer.CanContentScroll="True"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                          IsReadOnly="True">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="2*"/>
-                    <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="2*"/>
-                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="3*"/>
-                    <DataGridTextColumn Header="Access level" Binding="{Binding AccessLevel}" Width="*"/>
-                    <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="*"/>
+                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*"/>
+                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*"/>
+                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="*"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                    <DataGridTextColumn Header="Password" Binding="{Binding PasswordHash}" Width="*"/>
+                    <DataGridTextColumn Header="Access Level" Binding="{Binding AccessLevel}" Width="*"/>
+                    <DataGridTextColumn Header="Last Modified" Binding="{Binding LastModified}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </DataTemplate>
@@ -683,7 +683,7 @@
 
                 <TabControl x:Name="InternalTabControl" Style="{StaticResource DarkTabControlStyle}" Margin="0,0,0,5">
                     <TabItem Header="Users" Style="{StaticResource DarkTabItemStyle}"/>
-                    <TabItem Header="Security" Style="{StaticResource DarkTabItemStyle}"/>
+                    <!--<TabItem Header="Security" Style="{StaticResource DarkTabItemStyle}"/>-->
                 </TabControl>
 
                 <Border Grid.Row="1" Background="#2D2D30" Padding="5" MinHeight="68">
@@ -691,6 +691,7 @@
                         <ContentControl.Style>
                             <Style TargetType="ContentControl">
                                 <Setter Property="ContentTemplate" Value="{StaticResource UsersTopBarTemplate}"/>
+                                                                                        <!-- SecurityPermissionRowTemplate -->
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="1">
                                         <Setter Property="ContentTemplate" Value="{StaticResource SecurityTopBarTemplate}"/>
@@ -716,6 +717,162 @@
 
             </Grid>
         </DataTemplate>
+        
+        <!-- Management of "Presets" -->
+
+        <DataTemplate x:Key="ManageBaseItemTopBar">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New Base Item" Tag="Resources/new_product_icon.png" Click="NewBaseItem_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit Base Item" Tag="Resources/edit_product_icon.png" Click="EditBaseItem_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete Base Item" Tag="Resources/delete_product_icon.png" Click="DeleteBaseItem_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="RefreshBaseItem_Click"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageItemCategoryTopBar">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New Item Category" Tag="Resources/new_product_icon.png" Click="NewItemCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit Item Category" Tag="Resources/edit_product_icon.png" Click="EditItemCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete Item Category" Tag="Resources/delete_product_icon.png" Click="DeleteItemCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="RefreshItemCategory_Click"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageItemSKUTopBar">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New Item SKU" Tag="Resources/new_product_icon.png" Click="NewItemSKU_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit Item SKU" Tag="Resources/edit_product_icon.png" Click="EditItemSKU_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete Item SKU" Tag="Resources/delete_product_icon.png" Click="DeleteItemSKU_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="RefreshItemSKU_Click"/>
+            </WrapPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageServiceCategoryTopBar">
+            <WrapPanel>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="New Service Category" Tag="Resources/new_product_icon.png" Click="NewServiceCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Edit Service Category" Tag="Resources/edit_product_icon.png" Click="EditServiceCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Delete Service Category" Tag="Resources/delete_product_icon.png" Click="RemoveServiceCategory_Click"/>
+                <Button Style="{StaticResource TopActionButtonStyle}" Content="Refresh" Tag="Resources/refresh_icon.png" Click="RefreshServiceCategory_Click"/>
+            </WrapPanel>
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="ManageBaseItemContentTemplate">
+            <DataGrid x:Name="BaseItemGrid" ItemsSource="{Binding BaseItemList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                   ScrollViewer.CanContentScroll="True"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                   IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="*"/>
+                    <DataGridTextColumn Header="SKU" Binding="{Binding SKUCode}" Width="*"/>
+                    <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="*"/>
+                    <DataGridTextColumn Header="Qty Per Bundle" Binding="{Binding QuantityPerBundle}" Width="*"/>
+                    <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageItemCategoryContentTemplate">
+            <DataGrid x:Name="ItemCategoryGrid" ItemsSource="{Binding ItemCategoryList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                   ScrollViewer.CanContentScroll="True"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                   IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Item Category ID" Binding="{Binding CategoryID}" Width="*"/>
+                    <DataGridTextColumn Header="Item Category Name" Binding="{Binding CategoryName}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageItemSKUContentTemplate">
+            <DataGrid x:Name="ItemSKUGrid" ItemsSource="{Binding ItemSKUList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                   ScrollViewer.CanContentScroll="True"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                   IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Item SKU ID" Binding="{Binding SKUID}" Width="*"/>
+                    <DataGridTextColumn Header="Item SKU Code" Binding="{Binding SKUCode}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManageServiceCategoryContentTemplate">
+            <DataGrid x:Name="ServiceCategoryGrid" ItemsSource="{Binding ServiceCategoryList, RelativeSource={RelativeSource AncestorType=Window}}" 
+                   ScrollViewer.CanContentScroll="True"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                   IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Service Category ID " Binding="{Binding ServiceCategoryID}" Width="*"/>
+                    <DataGridTextColumn Header="Service Category Name" Binding="{Binding ServiceCategoryName}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ManagePresetsContentTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TabControl x:Name="InternalTabControl" Style="{StaticResource DarkTabControlStyle}" Margin="0,0,0,5">
+                    <TabItem Header="Base Items" Style="{StaticResource DarkTabItemStyle}"/>
+                    <TabItem Header="Item Categories" Style="{StaticResource DarkTabItemStyle}"/>
+                    <TabItem Header="Item SKUs" Style="{StaticResource DarkTabItemStyle}"/>
+                    <TabItem Header="Service Categories" Style="{StaticResource DarkTabItemStyle}"/>
+                </TabControl>
+
+                <Border Grid.Row="1" Background="#2D2D30" Padding="5" MinHeight="68">
+                    <ContentControl x:Name="TopBarSwitcher">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="ContentTemplate" Value="{StaticResource ManageBaseItemTopBar}"/>
+                                <!-- ManageBaseItemTopBar -->
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="1">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource ManageItemCategoryTopBar}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="2">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource ManageItemSKUTopBar}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="3">
+                                        <Setter Property="ContentTemplate" Value="{StaticResource ManageServiceCategoryTopBar}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </Border>
+
+                <ContentControl Grid.Row="2" x:Name="MainContentSwitcher">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate" Value="{StaticResource ManageBaseItemContentTemplate}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="1">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ManageItemCategoryContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="2">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ManageItemSKUContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=InternalTabControl, Path=SelectedIndex}" Value="3">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ManageServiceCategoryContentTemplate}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+
+            </Grid>
+        </DataTemplate>
+
+
+
 
     </Window.Resources>
 
@@ -729,65 +886,82 @@
         </Grid.ColumnDefinitions>
 
         <Border Background="#252526" Grid.Column="0">
-            <StackPanel>
-                <TextBlock Text="Western Edge Gutters" Foreground="White" FontSize="16" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <RadioButton x:Name="rbDashboard" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation" IsChecked="True" Margin="0,5,0,0">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/dashboard_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Dashboard"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>
+                <!-- Navigation Section -->
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Western Edge Gutters" Foreground="White" FontSize="16" FontWeight="Bold" Margin="10"/>
 
-                <RadioButton x:Name="rbServices" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/products_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Services"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>
+                    <RadioButton x:Name="rbDashboard" Style="{StaticResource NavigationRadioButtonStyle}" 
+                         GroupName="Navigation" IsChecked="True" Margin="0,5,0,0">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/dashboard_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Dashboard"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
 
-                <RadioButton x:Name="rbStock" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/stock_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Stock"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>
+                    <RadioButton x:Name="rbServices" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/products_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Services"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
 
-                <!--<RadioButton x:Name="rbReporting" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/reporting_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Reporting"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>-->
+                    <RadioButton x:Name="rbStock" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/stock_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Stock"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
 
-                <RadioButton x:Name="rbCustomers" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/customers_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Customers"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>
+                    <RadioButton x:Name="rbPresets" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/edit_group_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Presets"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
 
-                <RadioButton x:Name="rbUsersAndSecurity" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
-                    <RadioButton.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Resources/users_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="Users &amp; Security"/>
-                        </StackPanel>
-                    </RadioButton.Content>
-                </RadioButton>
+                    <RadioButton x:Name="rbCustomers" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/customers_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Customers"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
 
-            </StackPanel>
+                    <RadioButton x:Name="rbUsersAndSecurity" Style="{StaticResource NavigationRadioButtonStyle}" GroupName="Navigation">
+                        <RadioButton.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="Resources/users_icon.png" Width="20" Height="20" Margin="0,0,10,0"/>
+                                <TextBlock Text="Users &amp; Security"/>
+                            </StackPanel>
+                        </RadioButton.Content>
+                    </RadioButton>
+                </StackPanel>
+
+                <!-- Save Button at Bottom -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,15">
+                    <Button x:Name="LogoutButton" Content="Logout" Width="80"
+                    Background="#007ACC" Foreground="White" BorderThickness="0"
+                    Click="LogoutButton_Click" />
+                </StackPanel>
+
+            </Grid>
         </Border>
+
 
         <!-- Content Control Top Bar -->
         <Grid Grid.Column="1" Grid.ColumnSpan="3">
@@ -844,6 +1018,9 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding ElementName=rbStock, Path=IsChecked}" Value="True">
                                     <Setter Property="ContentTemplate" Value="{StaticResource StockMainContentTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=rbPresets, Path=IsChecked}" Value="True">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource ManagePresetsContentTemplate}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

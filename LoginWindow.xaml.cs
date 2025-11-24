@@ -1,5 +1,6 @@
 ﻿using System.Windows;
-using WEGutters.ConstructorClasses;
+using WEGutters.DatabaseAccess;
+using WEGutters.UserClasses;
 
 namespace WEGutters
 {
@@ -19,7 +20,7 @@ namespace WEGutters
             User loggedInUser = UserDBAccess.Login(user, pass);
             if (loggedInUser != null)
             {
-                MainWindow main = new MainWindow();
+                MainWindow main = new MainWindow(loggedInUser.AccessLevel);
                 main.Show();
                 this.Close();
             }

@@ -2,7 +2,10 @@
 using System.Globalization;
 using System.Text;
 using System.Windows;
-using WEGutters.ConstructorClasses;
+using WEGutters.UserClasses;
+using WEGutters.ServiceClasses;
+using WEGutters.CustomerClasses;
+using WEGutters.DatabaseAccess;
 
 namespace WEGutters
 {

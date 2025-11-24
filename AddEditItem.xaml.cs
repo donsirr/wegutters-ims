@@ -14,7 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WEGutters.ConstructorClasses;
+using WEGutters.DatabaseAccess;
+using WEGutters.UserClasses;
 
 namespace WEGutters
 {
@@ -116,7 +117,7 @@ namespace WEGutters
         private void UpdateBaseItemComboBox(ObservableCollection<BaseItem> BaseItems)
         {
             BaseItemCollection = BaseItems;
-            BaseItemCollection.Insert(0,(new BaseItem(new SKU("null"), "Add New Item", new Category("null"), "null", 1)));
+            BaseItemCollection.Insert(0,(new BaseItem(new SKU("null"), "Add New Base Item", new Category("null"), "null", 1)));
         }
 
         // Save button click event
@@ -347,7 +348,7 @@ namespace WEGutters
             UnitBox.Text = unitText;
             if (string.IsNullOrEmpty(unitText))
             {
-                errors.AppendLine("- Units cannot be blank.");
+                errors.AppendLine("- Unit cannot be blank.");
             }
 
             // Quantity

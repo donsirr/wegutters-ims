@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:WEGutters"
         mc:Ignorable="d"
         Title="Add New Customer" Height="525" Width="400"
         Background="#2D2D30" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" Icon="/app_icon.png">
+        xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" Icon="/Resources/app_icon.png">
 
 
     <Window.Resources>
@@ -44,7 +45,13 @@
         <TextBox Grid.Row="3" x:Name="CustomerAddressBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>
 
         <TextBlock Grid.Row="4" Text="Contact Number:" Foreground="White"  Margin="0,5,0,0"/>
-        <TextBox Grid.Row="5" x:Name="ContactNumberBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>
+        <xctk:MaskedTextBox
+                Grid.Row="5"
+                x:Name="ContactNumberBox"
+                Style="{StaticResource SearchBoxStyle}"
+                Margin="0,5"
+                Mask="000-000-0000"
+                PromptChar="_"/>
 
         <TextBlock Grid.Row="6" Text="Email:" Foreground="White"  Margin="0,5,0,0"/>
         <TextBox Grid.Row="7" x:Name="CustomerEmailBox" Style="{StaticResource SearchBoxStyle}"  Margin="0,5"/>

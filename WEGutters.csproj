@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="app_icon.png" />
     <None Remove="Resources\add_icon.png" />
+    <None Remove="Resources\app_icon.png" />
     <None Remove="Resources\clipboard_icon.png" />
     <None Remove="Resources\company_icon.png" />
     <None Remove="Resources\countries_icon.png" />
@@ -50,16 +50,16 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
     <PackageReference Include="libphonenumber-csharp" Version="9.0.19" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
     <PackageReference Include="QuestPDF" Version="2025.7.4" />
-    <PackageReference Include="ScottPlot.WPF" Version="5.1.57" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="app_icon.png" />
     <Resource Include="Resources\add_icon.png" />
+    <Resource Include="Resources\app_icon.png" />
     <Resource Include="Resources\clipboard_icon.png" />
     <Resource Include="Resources\company_icon.png" />
     <Resource Include="Resources\countries_icon.png" />

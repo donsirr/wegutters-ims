@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WEGutters.ConstructorClasses
+namespace WEGutters.UserClasses
 {
     public class BaseItem
     {
@@ -54,6 +54,10 @@ namespace WEGutters.ConstructorClasses
                 }
             }
         }
+        public int SKUID
+        { get { return SKU.SKUID;  } }
+        public string SKUCode
+        { get { return SKU.SKUCode; } }
 
         public string ItemName
         {
@@ -86,6 +90,13 @@ namespace WEGutters.ConstructorClasses
                 }
             }
         }
+        public int CategoryID
+        { get { return Category.CategoryID; } }
+
+        public string CategoryName
+        { get { return Category.CategoryName; } }
+
+
         public string Unit
         {
             get { return unit; }

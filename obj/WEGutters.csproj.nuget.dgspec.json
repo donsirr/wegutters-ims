@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\WEGutters.csproj": {}
+    "C:\\Users\\Jullian\\Documents\\GitHub\\wegutters-ims\\WEGutters.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\WEGutters.csproj": {
+    "C:\\Users\\Jullian\\Documents\\GitHub\\wegutters-ims\\WEGutters.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\WEGutters.csproj",
+        "projectUniqueName": "C:\\Users\\Jullian\\Documents\\GitHub\\wegutters-ims\\WEGutters.csproj",
         "projectName": "WEGutters",
-        "projectPath": "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\WEGutters.csproj",
+        "projectPath": "C:\\Users\\Jullian\\Documents\\GitHub\\wegutters-ims\\WEGutters.csproj",
         "packagesPath": "C:\\Users\\Jullian\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jullian\\Source\\Repos\\fork-wegutters-ims\\obj\\",
+        "outputPath": "C:\\Users\\Jullian\\Documents\\GitHub\\wegutters-ims\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,13 +50,29 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.0, )"
+            },
+            "Extended.Wpf.Toolkit": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[6.1.2, )"
             },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2025.7.4, )"
+            },
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.119, )"
+            },
+            "libphonenumber-csharp": {
+              "target": "Package",
+              "version": "[9.0.19, )"
             }
           },
           "imports": [

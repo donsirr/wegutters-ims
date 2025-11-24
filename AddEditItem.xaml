@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Add Item" Height="525" Width="400"
         Background="#2D2D30" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-    xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" Icon="/app_icon.png">
+    xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" Icon="/Resources/app_icon.png">
 
     <Window.Resources>
 

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-using WEGutters.ConstructorClasses;
+using WEGutters.DatabaseAccess;
+using WEGutters.UserClasses;
 
 namespace WEGutters
 {

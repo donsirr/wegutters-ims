@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WEGutters.ConstructorClasses
+namespace WEGutters.UserClasses
 {
     public class Category
     {
