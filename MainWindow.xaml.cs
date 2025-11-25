@@ -925,6 +925,11 @@ namespace WEGutters
 
             if (dataGrid?.SelectedItem is User selectedUser)
             {
+                if (selectedUser.Username == "admin")
+                {
+                    MessageBox.Show("Admin is not editable.", "Admin Edit Attempt", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 AddEditUser editUser = new AddEditUser(false, selectedUser);
                 editUser.Owner = this; // Set this window as the owner
                 editUser.Title = "Edit User";
