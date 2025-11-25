@@ -197,6 +197,10 @@ namespace WEGutters
             {
                 errors.AppendLine("- Item Name cannot be blank.");
             }
+            else if (string.Equals(itemName, "Add New Base Item", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.AppendLine("- Item Name cannot be \"Add New Base Item\".");
+            }
 
             // Category
             string categoryName;

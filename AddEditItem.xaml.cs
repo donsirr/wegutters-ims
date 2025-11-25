@@ -282,9 +282,9 @@ namespace WEGutters
             {
                 errors.AppendLine("- Item Name cannot be blank.");
             }
-            else if (string.Equals(itemName, "Add New Item", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(itemName, "Add New Base Item", StringComparison.OrdinalIgnoreCase))
             {
-                errors.AppendLine("- Item Name cannot be \"Add New Item\".");
+                errors.AppendLine("- Item Name cannot be \"Add New Base Item\".");
             }
 
             // Item details

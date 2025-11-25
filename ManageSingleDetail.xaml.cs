@@ -158,6 +158,30 @@ namespace WEGutters
                 {
                     errors.AppendLine($"{labelText} with the name '{itemName}' already exists.");
                 }
+                else
+                {
+                    // make sure its not "add new..." by guessing which data type it is.
+                    int type = labelText switch
+                    {
+                        "Category Name" => 0,
+                        "SKU Name" => 1,
+                        "Service Category Name" => 2,
+                        _ => 3
+                    };
+
+                    if (type == 0 && (string.Equals(itemName, "Add New Category", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        errors.AppendLine("- Item Name cannot be \"Add New Category\".");
+                    }
+                    else if (type == 1 && (string.Equals(itemName, "Add New SKU", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        errors.AppendLine("- Item Name cannot be \"Add New SKU\".");
+                    }
+                    else if (type == 2 && (string.Equals(itemName, "Add New Service Category", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        errors.AppendLine("- Item Name cannot be \"Add New Service Category\".");
+                    }
+                }
             }
 
             validationError = errors.ToString().TrimEnd();

@@ -970,6 +970,11 @@ namespace WEGutters
             var dataGrid = FindElementByName<DataGrid>(ContentControlPanel, "UserDataGrid");
             if (dataGrid?.SelectedItem is User selectedUser)
             {
+                if (selectedUser.Username == "admin")
+                {
+                    MessageBox.Show("Admin is not deletable.", "Admin Delete Attempt", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 MessageBoxResult result = MessageBox.Show(
                     "Are you sure you want to delete this user?",
                     "Confirm Delete",
@@ -1133,7 +1138,7 @@ namespace WEGutters
             
             if (dataGrid?.SelectedItem is Category selectedItemCategory)
             {
-                ManageSingleDetail editItemCategory = new ManageSingleDetail(false, selectedItemCategory);
+                ManageSingleDetail editItemCategory = new ManageSingleDetail(false, selectedItemCategory, "Category Name");
                 editItemCategory.Owner = this; // Set this window as the owner
                 editItemCategory.Title = "Edit Item Category";
 
@@ -1229,7 +1234,7 @@ namespace WEGutters
 
             if (dataGrid?.SelectedItem is SKU selectedSKU)
             {
-                ManageSingleDetail editSKU = new ManageSingleDetail(false, selectedSKU);
+                ManageSingleDetail editSKU = new ManageSingleDetail(false, selectedSKU, "SKU Name");
                 editSKU.Owner = this;
                 editSKU.Title = "Edit Item SKU";
 
@@ -1324,7 +1329,7 @@ namespace WEGutters
 
             if (dataGrid?.SelectedItem is ServiceCategory selectedCategory)
             {
-                ManageSingleDetail editServiceCategory = new ManageSingleDetail(false, selectedCategory);
+                ManageSingleDetail editServiceCategory = new ManageSingleDetail(false, selectedCategory, "Service Category Name");
                 editServiceCategory.Owner = this;
                 editServiceCategory.Title = "Edit Service Category";
 
