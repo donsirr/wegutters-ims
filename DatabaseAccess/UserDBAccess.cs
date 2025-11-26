@@ -57,11 +57,13 @@ namespace WEGutters.DatabaseAccess
                 if (!existingColumns.Contains("Email")) ExecuteSql(conn, "ALTER TABLE Users ADD COLUMN Email TEXT");
                 if (!existingColumns.Contains("AccessLevel")) ExecuteSql(conn, "ALTER TABLE Users ADD COLUMN AccessLevel TEXT");
                 if (!existingColumns.Contains("IsActive")) ExecuteSql(conn, "ALTER TABLE Users ADD COLUMN IsActive INTEGER DEFAULT 1");
+                if (!existingColumns.Contains("LastModified")) ExecuteSql(conn, "ALTER TABLE Users ADD COLUMN LastModified TEXT");
+                if (!existingColumns.Contains("CreatedDate")) ExecuteSql(conn, "ALTER TABLE Users ADD COLUMN CreatedDate TEXT");
 
                 // 3. Insert Default Admin User (Ignore if ID 1 exists)
                 string insertSql = @"
-                    INSERT OR IGNORE INTO Users (UserID, Username, Password, FirstName, LastName, Email, AccessLevel, IsActive)
-                    VALUES (1, 'admin', 'admin', 'System', 'Admin', 'admin@wegutters.com', 'Admin', 1);
+                    INSERT OR IGNORE INTO Users (UserID, Username, Password, FirstName, LastName, Email, AccessLevel, IsActive, LastModified, CreatedDate)
+                    VALUES (1, 'admin', 'admin', 'System', 'Admin', 'admin@wegutters.com', 'Admin', 1,'admin', 'admin');
                 ";
                 using (var cmd = new SQLiteCommand(insertSql, conn))
                 {
