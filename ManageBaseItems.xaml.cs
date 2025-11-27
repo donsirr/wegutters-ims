@@ -102,7 +102,21 @@ namespace WEGutters
 
             try
             {
-                ReturnBase = GetBaseItem();
+                if (!isNew && ReturnBase != null)
+                {
+                    SKU selectedSKU = GetSelectedSKU();
+                    Category selectedCategory = GetSelectedCategory();
+                    ReturnBase.SKUProperty = selectedSKU;
+                    ReturnBase.ItemName = ItemNameBox.Text;
+                    ReturnBase.Category = selectedCategory;
+                    ReturnBase.Unit = UnitBox.Text;
+                    ReturnBase.QuantityPerBundle = Convert.ToInt32(QuantityPerBundleBox.Text);
+                    
+                }
+                else
+                {
+                    ReturnBase = GetBaseItem();
+                }
 
                 this.DialogResult = true; // tell caller we saved
                 this.Close();

@@ -155,10 +155,14 @@ namespace WEGutters.DatabaseAccess
             var customersCollection = new ObservableCollection<Customer>();
             using (var conn = GetConnection())
             {
-                
-                using (var cmd = new SQLiteCommand("SELECT * From Customers WHERE CustomerName LIKE @Search OR CustomerAddress LIKE @Search OR CustomerEmail LIKE @Search;", conn))
-                {
+                // Use a verbatim string (@"") for cleaner SQL formatting
+                string sql = @"
+            SELECT * From Customers 
+            WHERE CustomerID != 1 
+            AND (CustomerName LIKE @Search OR CustomerAddress LIKE @Search OR CustomerEmail LIKE @Search);";
 
+                using (var cmd = new SQLiteCommand(sql, conn))
+                {
                     cmd.Parameters.AddWithValue("@Search", "%" + search + "%");
 
                     using (var reader = cmd.ExecuteReader())
@@ -174,7 +178,7 @@ namespace WEGutters.DatabaseAccess
                                 reader.GetString(6), // LastModified
                                 reader.GetString(7)  // CreatedDate
                             )
-                            { CustomerID = reader.GetInt32(0) }; // CategoryID since it's not in the constructor
+                            { CustomerID = reader.GetInt32(0) };
 
                             customersCollection.Add(customer);
                         }
@@ -183,6 +187,5 @@ namespace WEGutters.DatabaseAccess
                 return customersCollection;
             }
         }
-
     }
 }
